@@ -1,0 +1,6 @@
+// $Id: activitystream_digg.info,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+
+name = Digg
+description = What's been Dugg
+dependencies = activitystream activitystream_feed
+package = Activity Stream

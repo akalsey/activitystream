@@ -1,0 +1,142 @@
+The Activity Stream API allows you to bring a user's creations from third party sites into Drupal and insert them into a Drupal user's lifestream. Each item can be themed by you and by the site owner. 
+
+You can add fields to the Activity Stream admin settings page, allowing the site administrator to add API keys or global settings for your module. You can also add fields to the user's profile page, allowing them to enter their usernames, passwords, or feed URLs for the site your module supports.
+
+Each third party site should be it's own module. Don't mix multiple sites into a single module.
+
+Hooks
+======
+
+streamapi
+----------
+
+Your module's streamapi hook is run when Activity Stream is updating the users' streams (usually from cron).
+
+The API passes in a $user object that contains four properties:
+ * uid 
+ * userid 
+ * password
+ * feed
+ 
+These properties contain the account information entered into the user's settings page, along with the uid of their Drupal account.
+
+Your streamapi function will return an array. Each item in the array will be an array of stream items with the following keys:
+
+ * guid - [REQUIRED] a unique id for each item from your module. This will allow Activity Streams to know if this is a new item or an update to an existing one.
+ 
+ * title - [REQUIRED] The title of the item. This will be used in the stream and as the title for the Drupal node.
+ 
+ * body - [optional] The contents of the item. This is not shown on the strea, but will be the body of the Drupal node.
+ 
+ * link - [optional] A url for the original item on the third party site. The permalink to a blog entry, the photo page on Flickr, etc.
+ 
+ * timestamp - [REQUIRED] A unix timestamp with the original item's date and time.
+ 
+ * data - [optional] Any additional data that your module wants to store. Store complex data types by serializing first
+
+If the site you are integrating provides an RSS feed for the user's activity, you might find it easiest to use the activitystream_feed module to do all your streamapi work. Simply construct the feed URL for your user and add it to the feed property of the user object. Then send that user object to activitystream_feed_streamapi and return what it returns.
+
+For example, the Digg module does this...
+
+function activitystream_digg_streamapi($user) {
+	// This user doesn't have a digg ID entered
+	if (!$user->userid) {
+		return;
+	}
+	
+	// Use the activitystream_feed module to pull in the user's
+	// history. 
+	$user->feed = 'http://digg.com/users/'.$user->userid . '/history.rss';
+	$items = activitystream_feed_streamapi($user);
+	return $items;
+}
+
+activitystream_admin
+--------------------
+
+This hook fetches any form fields you need to add to admin/settings/activitystream. The most common example of this would be an API key for the site you are integrating.
+
+Modules should build a form using an array that mirrors the Drupal form API. activitystream.module will add the form elements to the admin settings page. To avoid collisions with other activitystream module's forms use your module's name as the form array's key. Your function should return the form array.
+
+Example: 
+
+function activitystream_flickr_activitystream_admin() {
+	$form['activitystream_flickr'] = array(
+		'#type' => 'fieldset',
+		'#title' => t("Flickr"),
+		'#description' => t("Flickr API settings."),
+		'#weight' => 1,
+		'#collapsible' => TRUE,
+		'#collapsed' => TRUE
+	);
+	$form['activitystream_flickr']['activitystream_flickr_key'] = array(
+		'#type' => 'textfield',
+		'#title' => t("API Key"),
+		'#description' => t("Your Flickr API Key"),
+		'#default_value' => variable_get('activitystream_flickr_key', ''),
+		'#required' => FALSE
+	);
+	return $form;
+}
+
+activitystream_settings
+-----------------------
+
+Implement a user settings form hook. Modules should build a form using an array that mirrors the Drupal form API. activitystream.module will add the form elements to a tab called Activity Streams on the user's Profile Edit page. Fields should be named yourmodulename_fieldname. For instance, to store the user ID for  Flickr, the field name is activitystream_flickr_userid 
+
+To avoid collisions with other activitystream module's forms use your module's name as the form array's key. 
+
+Return the form array.
+
+Example:
+
+function activitystream_flickr_activitystream_settings() {
+	$form['activitystream_flickr'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Flickr settings'));
+  $form['activitystream_flickr']['activitystream_flickr_userid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Username'),
+    '#default_value' => $edit['activitystream_flickr_userid'],
+    '#description' => t('The username for your Flickr account'));
+  return $form;	
+}
+
+Theme Functions
+===============
+
+icon
+----
+
+Return an image used to identify the activity. Most themes expect this is a 16x16 image so you should stick with that. Return the full <img> tag for the image.
+
+Example:
+
+function theme_activitystream_flickr_icon() {
+	return theme_image(drupal_get_path('module', 'activitystream_flickr') . '/flickr.png', 'Flickr');
+}
+
+
+item
+----
+
+Return the fully formatted activity stream item. 
+
+@param
+  $action
+  Object with properties:
+    nid - node id of Drupal node
+    link - link to the original item
+    data - Custom data your module stored
+    
+The item date and username should be run through the activitystream_date and activitystream_username themes, respectively, before displaying them. This allows site owners to create a unified date and username format for their stream. Likewise, if you provide an icon, you should provide it through the icon theme hook, giving theme designers the ability to replace your icon with one of their choice.
+
+It is recommended that your item theme follow the HTML conventions shown in the example. This will allow theme designers to style stream items using only CSS.
+
+function theme_activitystream_flickr_item($action) {
+	$node = node_load($action->nid);
+	$date = theme('activitystream_date',$node->created);
+	$user = user_load(array('uid' => $node->uid));
+	$name = theme('activitystream_username',$user);
+	return '<span class="activitystream-item">' . theme('activitystream_flickr_icon') . " <span>$name posted " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span> " . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
+}

@@ -1,0 +1,6 @@
+// $Id: activitystream_flickr.info,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+
+name = Flickr Stream
+description = Your activity on Flickr
+dependencies = activitystream
+package = Activity Stream

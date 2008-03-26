@@ -1,0 +1,26 @@
+/*
+  $Id: activitystream.css,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+*/
+
+.activitystream-item ul {
+	list-style-type: none;
+	padding: 0; margin: 0;
+}
+
+.activitystream-item li {
+	list-style-type: none !important;
+	padding: 5px 0 !important; 
+	margin: 0 !important;
+}
+
+#activitystream h3.datehead {
+	margin-top: 1em;
+	border-bottom: 1px solid #ccc;
+	color: #999;
+	font-size: 0.9em;
+}
+
+.activitystream-created, #activitystream a.permalink {
+	color: #999;
+	font-size: 0.9em;
+}

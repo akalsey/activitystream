@@ -1,0 +1,26 @@
+$Id: INSTALL.txt,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+
+Installation
+------------
+
+ 1. Extract the compressed download
+ 
+ 2. Upload the entire activitystream directory to your site's modules directory.
+    (Don't know where to put it? sites/all/modules is a good choice.)
+    
+ 3. Go to Admin -> Site Building -> Modules and activate the Activity Stream API
+    and any plugin modules for it that you'd like to use.
+    
+Configuration
+-------------
+    
+ 1. Go to Admin -> Settings -> Activity Stream and configure any admin settings
+    required by the plugin modules. For instance, to use Flickr, you'll need a
+    Flickr API key from http://www.flickr.com/services/api/misc.api_keys.html
+    
+ 2. Go to your profile and edit it to add your account information for each service
+    you would like to use. Just click the Activity Stream tab to add your streams.
+    
+ 3. Your stream will appear in your profile. It will also appear on a page by itself
+    at http://example.com/stream/{your-user-id} and on a page with all other user's
+    streams at http://example.com/stream
