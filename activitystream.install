@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.install,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+// $Id: activitystream.install,v 1.2 2008/05/16 21:50:00 akalsey Exp $
 
 /**
  * Implementation of hook_install()
@@ -15,7 +15,7 @@
  * need to be removed.
  */
 
-function activityfeed_install() {
+function activitystream_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysqli':
     case 'mysql':
@@ -30,11 +30,13 @@ function activityfeed_install() {
       $q2 = db_query("CREATE TABLE IF NOT EXISTS {activitystream} (
           nid int(10) unsigned NOT NULL default '0',
           module varchar(255) default '',
+          link varchar(255) default '',
+          data text default '',
           guid varchar(32) default '',
           PRIMARY KEY (guid)
           ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
-		$q3 = db_query("INSERT INTO {profile_fields} (title, name, explanation, category, type, weight, required, register, visibility, autocomplete, options, page) VALUES ('Placeholder', 'profile_activitystream_placeholder', 'Empty by design. This field simply holds the place so the activitystream category can be added to profiles by a module', 'Activity Stream', 'textfield', -10, 0, 0, 0, 0, null, null)");
-	  break;
+		  $q3 = db_query("INSERT INTO {profile_fields} (title, name, explanation, category, type, weight, required, register, visibility, autocomplete, options, page) VALUES ('Placeholder', 'profile_activitystream_placeholder', 'Empty by design. This field simply holds the place so the activitystream category can be added to profiles by a module', 'Activity Stream', 'textfield', -10, 0, 0, 0, 0, null, null)");
+	    break;
 	}
 	if ($q1 && $q2 && $q3) {
 		drupal_set_message(t('Activity Stream module installed successfully.' . $warning));
@@ -44,9 +46,9 @@ function activityfeed_install() {
 	}
 }
 
-function activityfeed_uninstall() {
-  if (db_table_exists('activityfeed')) {
-    db_query("DROP TABLE {activityfeed}");
+function activitystream_uninstall() {
+  if (db_table_exists('activitystream')) {
+    db_query("DROP TABLE {activitystream}");
   } 
   if (db_table_exists('activitystream_accounts')) {
     db_query("DROP TABLE {activitystream_accounts}");
@@ -54,5 +56,13 @@ function activityfeed_uninstall() {
   $variables = db_query("SELECT name FROM {variable} WHERE name LIKE 'activityfeed%%'");
   while ($variable = db_fetch_object($variables)) {
     variable_del($variable->name);
+  }
+  $variables = db_query("SELECT * FROM {profile_fields} WHERE title = 'Placeholder' and name = 'profile_activitystream_placeholder'");
+  while (variable = db_fetch_object($variables)) {
+    update_sql("DELETE FROM {profile_fields} WHERE title = 'Placeholder' and name = 'profile_activitystream_placeholder'");
+  }
+  $variables = db_query("SELECT * FROM {system} WHERE name like '%activitystream'");
+  while (variable = db_fetch_object($variables)) {
+    update_sql("DELETE FROM {system} WHERE name like '%activitystream'");
   }
 }

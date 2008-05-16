@@ -1,4 +1,4 @@
-// $Id: activitystream_delicious.info,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+; $Id: activitystream_delicious.info,v 1.2 2008/05/16 21:50:01 akalsey Exp $
 
 name = Delicious Bookmarks
 description = Your links on Delicious

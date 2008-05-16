@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_flickr.module,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+// $Id: activitystream_flickr.module,v 1.2 2008/05/16 21:50:02 akalsey Exp $
 
 include('phpFlickr.php');
 
@@ -77,7 +77,7 @@ function activitystream_flickr_activitystream_admin() {
  * To avoid collisions with other activitystream module's forms
  * use your module's name as the form array's key.
  */
-function activitystream_flickr_activitystream_settings() {
+function activitystream_flickr_activitystream_settings(&$edit) {
 	$form['activitystream_flickr'] = array(
       '#type' => 'fieldset',
       '#title' => t('Flickr settings'));

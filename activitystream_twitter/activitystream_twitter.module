@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_twitter.module,v 1.1 2008/03/26 00:46:12 akalsey Exp $
+// $Id: activitystream_twitter.module,v 1.2 2008/05/16 21:50:02 akalsey Exp $
 
 /*
  * The API passes in a $user object that contains four properties:
@@ -19,7 +19,8 @@ function activitystream_twitter_streamapi($user) {
 	$items = activitystream_feed_streamapi($user);
 	foreach ($items as $tweet) {
 		$userid = $user->userid . ':';
-		$tweet['body'] = preg_replace('/^'.$userid.'/', '', $tweet['body']);
+		$tweet['title'] = preg_replace('/^'.$userid.' /', '', $tweet['title']);
+		$tweet['body'] = activitystream_twitter_makelinks($tweet['body']);
 		$newitems[] = $tweet;
 	}
 	return $newitems;
@@ -61,6 +62,19 @@ function theme_activitystream_twitter_item($activity) {
 	$node = node_load($activity->nid);
 	$date = theme('activitystream_date',$node->created);
 	$user = user_load(array('uid' => $node->uid));
+	$title = activitystream_twitter_makelinks($node->title);
 	$name = theme('activitystream_username',$user);
-	return '<span class="activitystream-item">' . theme('activitystream_twitter_icon') . " <span>$name " . l('tweeted', $activity->link) . " \"" . $node->title . "\" <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
+	return '<span class="activitystream-item">' . theme('activitystream_twitter_icon') . " <span>$name " . l('tweeted', $activity->link) . " \"" . $title . "\" <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
 }
+
+function activitystream_twitter_makelinks($text) {
+  // autolink URLS
+  $text = eregi_replace('(((f|ht){1}tp://)[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '<a href="\\1">\\1</a>', $text);
+  $text = eregi_replace('([[:space:]()[{}])(www.[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '\\1<a href="http://\\2">\\2</a>', $text);
+  // @ tags for users
+  $text = preg_replace('/@(\w*)/', '<a href="http://twitter.com/\\1">@\\1</a>', $text);
+  // hashtags to hashtag.org
+  $text = preg_replace('/#(\w*)/', '<a href="http://hashtags.org/tag/\\1/">#\\1</a>', $text);
+  return $text;
+}
+

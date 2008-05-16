@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_delicious.module,v 1.1 2008/03/26 00:46:11 akalsey Exp $
+// $Id: activitystream_delicious.module,v 1.2 2008/05/16 21:50:01 akalsey Exp $
 
 /*
  * The API passes in a $user object that contains four properties:
@@ -59,5 +59,5 @@ function theme_activitystream_delicious_item($action) {
 	$date = theme('activitystream_date',$node->created);
 	$user = user_load(array('uid' => $node->uid));
 	$name = theme('activitystream_username',$user);
-	return '<span class="activitystream-item">' . theme('activitystream_delicious_icon') . " <span>$name linked to " . l($node->title, $activity->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid) . '</span>';
+	return '<span class="activitystream-item">' . theme('activitystream_delicious_icon') . " <span>$name linked to " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
 }
