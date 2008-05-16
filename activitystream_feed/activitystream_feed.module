@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_feed.module,v 1.2 2008/05/16 21:50:02 akalsey Exp $
+// $Id: activitystream_feed.module,v 1.3 2008/05/16 23:34:33 akalsey Exp $
 require_once 'simplepie.inc';
 
 /*
@@ -81,4 +81,15 @@ function theme_activitystream_feed_item($activity) {
 	$user = user_load(array('uid' => $node->uid));
 	$name = theme('activitystream_username',$user);
 	return '<span class="activitystream-item">' . theme('activitystream_feed_icon',$activity->data) . " <span>$name posted " . l($node->title, $activity->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>'."\n";
+}
+
+function activitystream_feed_theme() {
+  return array(
+    'activitystream_feed_icon' => array(
+      'arguments' => array('params' => NULL),
+    ),
+    'activitystream_feed_item' => array(
+      'arguments' => array('activity' => NULL),
+    ),
+  );
 }

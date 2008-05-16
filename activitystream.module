@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2 2008/05/16 21:50:00 akalsey Exp $
+// $Id: activitystream.module,v 1.3 2008/05/16 23:34:33 akalsey Exp $
 
 // uid, module, userid, password, feed, lastfetch
 /**
@@ -46,21 +46,20 @@ function activitystream_save_account($module, &$user,$params) {
 function activitystream_menu() {
 	$items = array();
 
-	$items[] = array(
-		'path' => 'admin/settings/activitystream',
-		'title' => t('Activity Stream'),
-		'description' => t('Administer settings for activity feeds'),
-		'callback' => 'drupal_get_form',
-		'callback arguments' => 'activitystream_settings',
-		'access' => user_access('access administration pages'),
+	$items['admin/settings/activitystream'] = array(
+		'title' => 'Activity Stream',
+		'description' => 'Administer settings for activity feeds',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('activitystream_settings'),
+		'access arguments' => array('access administration pages'),
 		'type' => MENU_NORMAL_ITEM,
 	);
 
-	$items[] = array('path' => 'stream',
-	 	'title' => t('Activity Stream'),
-  	'callback' => 'activitystream_page',
-  	'access' => user_access('access content'),
-  	'type' => MENU_CALLBACK
+	$items['stream'] = array(
+	 	'title' => 'Activity Stream',
+		'page callback' => 'activitystream_page',
+		'access arguments' => array('access content'),
+		'type' => MENU_CALLBACK
 	);
 
 	return $items;
@@ -95,14 +94,13 @@ function activitystream_form(&$node) {
     '#default_value' => $node->title,
     '#weight' => -5
   );
-  $form['body_filter']['body'] = array(
+  $form['body_field'] = array(
     '#type' => 'textarea',
     '#title' => check_plain($type->body_label),
     '#default_value' => $node->body,
     '#required' => FALSE
   );
-  $form['body_filter']['filter'] = filter_form($node->format);
-
+ 
   return $form;
 }
 
@@ -110,7 +108,7 @@ function activitystream_form(&$node) {
  * Calls an API hook that allows activitystream modules to add admin form
  * items to the Activity Stream settings page.
  */
-function activitystream_form_alter($form_id, &$form) {
+function activitystream_form_alter(&$form, &$form_state, $form_id) {
 	unset($form['Activity Stream']);
 	if ($form_id == 'activitystream_settings') {
 		foreach (module_implements('activitystream_admin') as $name) {
@@ -127,7 +125,7 @@ function activitystream_form_alter($form_id, &$form) {
  * Implementation of hook_user()
  */
 function activitystream_user($op, &$edit, &$account, $category = NULL) {
-  switch ($op) {
+	switch ($op) {
     case 'form':
 		if ($category == 'Activity Stream') {
 			foreach (module_implements('activitystream_settings') as $name) {
@@ -155,13 +153,15 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
 			activitystream_save_account($name, $account, $arrDetails);				
 		}
 		break;
-    case 'view':
+	  case 'view':
 		$items = _activitystream_get_activity($account);
 		$title = variable_get('activitystream_title', 'Activity Stream');
-		$output = theme('activitystream',$items);
-		if (!empty($output)) {
-			return array($title => array(array('value' => $output, 'class' => 'user')));
-		}
+		$account->content['summary']['activitystream'] =  array(
+      '#type' => 'user_profile_item',
+      '#title' => t($title),
+      '#value' => theme('activitystream',$items),
+      '#attributes' => array('class' => 'user'),
+     );
 		break;
   }
 }
@@ -184,9 +184,9 @@ function activitystream_page($uid = 0) {
 	//$output = theme('item_list',$items);
 	if ($page) {
     // Breadcrumb navigation
-    $breadcrumb[] = array('path' => 'stream', 'title' => t($title));
-    $breadcrumb[] = array('path' => 'node/'. $node->nid);
-    menu_set_location($breadcrumb);
+    $breadcrumb[] = l(t($title), 'stream');
+    $breadcrumb[] = l($node->nid, 'node/');
+    drupal_set_breadcrumb($breadcrumb);
 	}
   $pager = theme('pager', NULL, 15, 0);
   if (!empty($pager)) {
@@ -202,7 +202,6 @@ function activitystream_page($uid = 0) {
 function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
   $user = user_load(array('uid' => $node->uid));
   $title = variable_get('activitystream_title', 'Activity Stream');
-
   $node->body = check_markup($node->body, $node->format, FALSE);
 
   $result = db_query('SELECT s.module, s.link, s.data, s.nid FROM {activitystream} s WHERE s.nid=%d LIMIT 1', $node->nid);			
@@ -216,10 +215,10 @@ function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
 
   if ($page) {
     // Breadcrumb navigation
-    $breadcrumb[] = array('path' => 'stream', 'title' => t($title));
-    $breadcrumb[] = array('path' => 'stream/'.$user->name, 'title' => check_plain($user->name) .'\'s ' . $title);
-    $breadcrumb[] = array('path' => 'node/'. $node->nid);
-    menu_set_location($breadcrumb);
+    $breadcrumb[] = l(t($title), 'stream');
+    $breadcrumb[] = l($user->name .'\'s ' . $title, 'stream/'.$user->name);
+    $breadcrumb[] = l($node->nid, 'node/');
+    drupal_set_breadcrumb($breadcrumb);
   }
   return $node;
 }
@@ -265,6 +264,7 @@ function _activitystream_get_activity($user = null, $show_buddies = false, $coun
 		else {
 			$theme_function = 'activitystream_item';
 		}
+		
 		$items[] = theme($theme_function,$action);			
 	}
 	return $items;
@@ -314,6 +314,7 @@ function theme_activitystream_view($activity) {
 
 
 function activitystream_cron() {
+	module_load_include('inc', 'node', 'node.pages');
 	$result = db_query('SELECT uid, userid, password, feed, module from {activitystream_accounts}');
 	while ($user = db_fetch_object($result)) {
 		activitystream_invoke_streamapi($user);
@@ -325,6 +326,7 @@ function activitystream_cron() {
  * Implementation of hook_settings()
  */
 function activitystream_settings() {
+	
   $form['activitystream_title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -389,11 +391,74 @@ function _activitystream_save($activity, $user, $name) {
 	}
 	if ($new) {
 		node_object_prepare($node);
+		$node->created = $activity['timestamp'];
+		$node->uid = $user->uid;
 		node_save($node);
+		
 	  $actions = db_query('INSERT into {activitystream} (nid,module, guid, link, data) VALUES (%d,"%s", "%s","%s","%s")',$node->nid,$name,$activity['guid'],$activity['link'],$activity['data']);		
 	} else {
 		node_save($node);
 	}
-	watchdog('activitystream', t('Added %title from %name', array('%title' => $node->title, '%name' => $name)));
+	watchdog('activitystream', 'Added %title from %name', array('%title' => $node->title, '%name' => $name));
 	return $node->nid;
+}
+
+function activitystream_theme() {
+  return array(
+    'activitystream_item' => array(
+      'arguments' => array('action' => NULL),
+    ),
+    'activitystream' => array(
+      'arguments' => array('items' => NULL),
+    ),
+		'activitystream_date' => array(
+      'arguments' => array('date' => NULL),
+    ),
+		'activitystream_username' => array(
+      'arguments' => array('user' => NULL),
+    ),
+		'activitystream_view' => array(
+      'arguments' => array('activity' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_block().
+ */
+
+function activitystream_block($op = 'list', $delta = 0) {
+  if ($op == 'list') {
+    $blocks[0]['info'] = t('Activitystream:  block');
+    
+    return $blocks;
+  }
+  else if ($op == 'view') {
+    $block = array();
+    switch ($delta) {
+      case 0:
+				$title = variable_get('activitystream_title', 'Activity Stream');
+		    $block['subject'] = t($title);
+        $block['content'] = block_activitystream_content(0);
+        break;
+      
+    }
+    return $block;
+  }
+}
+
+/**
+ * A block content function.
+ */
+
+function block_activitystream_content($which_block) {
+	global $user;
+	
+  switch ($which_block) {
+    case 0:
+      $items = _activitystream_get_activity($user);
+		  
+    return theme('activitystream',$items);
+
+  }
 }

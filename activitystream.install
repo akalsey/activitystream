@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.install,v 1.3 2008/05/16 21:52:27 akalsey Exp $
+// $Id: activitystream.install,v 1.4 2008/05/16 23:34:33 akalsey Exp $
 
 /**
  * Implementation of hook_install()
@@ -16,43 +16,47 @@
  */
 
 function activitystream_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysqli':
-    case 'mysql':
-      $q1 = db_query("CREATE TABLE IF NOT EXISTS {activitystream_accounts} (
-          uid int(10) unsigned NOT NULL default '0',
-          module varchar(255) default '',
-          userid varchar(255) default '',
-          password varchar(255) default '',
-          feed varchar(255) default '',
-          lastfetch timestamp NOT NULL
-          ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
-      $q2 = db_query("CREATE TABLE IF NOT EXISTS {activitystream} (
-          nid int(10) unsigned NOT NULL default '0',
-          module varchar(255) default '',
-          link varchar(255) default '',
-          data text default '',
-          guid varchar(32) default '',
-          PRIMARY KEY (guid)
-          ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
-		  $q3 = db_query("INSERT INTO {profile_fields} (title, name, explanation, category, type, weight, required, register, visibility, autocomplete, options, page) VALUES ('Placeholder', 'profile_activitystream_placeholder', 'Empty by design. This field simply holds the place so the activitystream category can be added to profiles by a module', 'Activity Stream', 'textfield', -10, 0, 0, 0, 0, null, null)");
-	    break;
-	}
-	if ($q1 && $q2 && $q3) {
-		drupal_set_message(t('Activity Stream module installed successfully.' . $warning));
-	}
-	else {
-		drupal_set_message(t('Table installation for the Activity Stream module was unsuccessful. The tables may need to be installed by hand. See the activitystream.install file for a list of the installation queries.'), 'error');
-	}
+  //create tables
+  drupal_install_schema('activitystream');
+  db_query("INSERT INTO {profile_fields} (title, name, explanation, category, type, weight, required, register, visibility, autocomplete, options, page) VALUES ('Placeholder', 'profile_activitystream_placeholder', 'Empty by design. This field simply holds the place so the activitystream category can be added to profiles by a module', 'Activity Stream', 'textfield', -10, 0, 0, 0, 0, null, null)");
+  drupal_set_message(t('Activity Stream module installed successfully.'));
 }
 
+/**
+ * Implementation of hook_schema().
+ */
+function activitystream_schema() {
+  $schema = array();
+  $schema['activitystream'] = array(
+    'fields' => array(
+       'nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+       'module' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+       'guid' => array('type' => 'varchar', 'length' => '32', 'not null' => TRUE),
+       'link' => array('type' => 'varchar', 'length' => '255'),
+       'data' => array('type' => 'text')),
+    'primary key' => array('guid'),
+  );
+
+  $schema['activitystream_accounts'] = array(
+    'fields' => array(
+       'uid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+       'module' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+       'userid' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+       'password' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+       'feed' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+       'lastfetch' => array('type' => 'datetime', 'not null' => TRUE)),
+       );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+
 function activitystream_uninstall() {
-  if (db_table_exists('activitystream')) {
-    db_query("DROP TABLE {activitystream}");
-  } 
-  if (db_table_exists('activitystream_accounts')) {
-    db_query("DROP TABLE {activitystream_accounts}");
-  } 
+  //remove tables
+  drupal_uninstall_schema('activitystream');
   $variables = db_query("SELECT name FROM {variable} WHERE name LIKE 'activitystream%%'");
   while ($variable = db_fetch_object($variables)) {
     variable_del($variable->name);

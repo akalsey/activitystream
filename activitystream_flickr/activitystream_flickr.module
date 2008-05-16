@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_flickr.module,v 1.2 2008/05/16 21:50:02 akalsey Exp $
+// $Id: activitystream_flickr.module,v 1.3 2008/05/16 23:34:33 akalsey Exp $
 
 include('phpFlickr.php');
 
@@ -89,7 +89,6 @@ function activitystream_flickr_activitystream_settings(&$edit) {
   return $form;	
 }
 
-
 /*
  * Return an image used to identify the activity. Most themes expect this is a 16x16 image
  * so you should stick with that. Return the full <img> tag for the image.
@@ -104,4 +103,16 @@ function theme_activitystream_flickr_item($action) {
 	$user = user_load(array('uid' => $node->uid));
 	$name = theme('activitystream_username',$user);
 	return '<span class="activitystream-item">' . theme('activitystream_flickr_icon') . " <span>$name posted " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span> " . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
+}
+
+
+function activitystream_flickr_theme() {
+  return array(
+    'activitystream_flickr_icon' => array(
+      'arguments' => array(),
+    ),
+    'activitystream_flickr_item' => array(
+      'arguments' => array('activity' => NULL),
+    ),
+  );
 }
