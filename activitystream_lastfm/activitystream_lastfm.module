@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_lastfm.module,v 1.2 2008/05/16 23:34:33 akalsey Exp $
+// $Id: activitystream_lastfm.module,v 1.1.4.1 2008/05/20 22:35:55 akalsey Exp $
 
 /*
  * The API passes in a $user object that contains four properties:
