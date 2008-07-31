@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.2 2008/07/31 17:05:26 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.3 2008/07/31 17:41:56 akalsey Exp $
 
 // uid, module, userid, password, feed, lastfetch
 /**
@@ -212,19 +212,22 @@ function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
   if ($page) {
     // Breadcrumb navigation
     $breadcrumb[] = l(t($title), 'stream');
-    $breadcrumb[] = l($user->name .'\'s ' . $title, 'stream/'.$user->name);
+    $breadcrumb[] = l($user->name .'\'s ' . $title, 'stream/'.$user->uid);
     $breadcrumb[] = l($node->nid, 'node/');
     drupal_set_breadcrumb($breadcrumb);
   }
   return $node;
 }
 
-function activitystream_get_activity($user = null, $show_buddies = false, $count = 15) {
+function activitystream_get_activity($user = null, $show_buddies = false, $count = null) {
 	$items = _activitystream_get_activity($user, $show_buddies, $count);
 	return theme('activitystream',$items);
 }
 
-function _activitystream_get_activity($user = null, $show_buddies = false, $count = 15) {
+function _activitystream_get_activity($user = null, $show_buddies = false, $count = null) {
+  if ($count == null) {
+    $count = variable_get('default_nodes_main', 10);
+  }
 	if (module_exists('buddylist') && $show_buddies) {
 		$buddies = db_query('SELECT bl.buddy as bid FROM {buddylist} bl WHERE bl.uid = %d',$user->uid);
 		// Since a number of items might be from the same buddy, load the users now and stuff them
@@ -252,7 +255,7 @@ function _activitystream_get_activity($user = null, $show_buddies = false, $coun
 	while ($action = db_fetch_object($stream)) {
 		if (date('Ymd', $action->created) != $datehead) {
 			$datehead = date('Ymd', $action->created);
-			$items[] = '<h3 class="datehead">' . date('F j, Y',$action->created) . '</h3>'; 
+			$items[] = '<h3 class="datehead">' . format_date($action->created, 'medium') . '</h3>'; 
 		}
 		
 		if (function_exists('theme_' . $action->module .'_item')) {
@@ -291,13 +294,17 @@ function theme_activitystream($items) {
 }
 
 function theme_activitystream_date($date) {
-	$date = date('g:ia',$date);
+	$date = format_date($date, 'custom', 'g:ia');
 	return $date;
 }
 
 function theme_activitystream_username($user) {
-	$arrNames = split(' ',$user->name);
-	return l($arrNames[0],'user/' . $user->uid);
+  $arrNames = split(' ',$user->name);
+  if (user_access('access user profiles')) {
+    return l($arrNames[0],'user/' . $user->uid);
+  } else {
+    return $arrNames[0];
+  }
 }
 
 function theme_activitystream_view($activity) {
