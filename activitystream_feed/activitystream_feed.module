@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_feed.module,v 1.2.2.2 2008/07/31 17:05:26 akalsey Exp $
+// $Id: activitystream_feed.module,v 1.2.2.3 2008/07/31 17:46:08 akalsey Exp $
 
 /**
  * @file
@@ -60,7 +60,7 @@ function activitystream_feed_streamapi($user) {
   }
 
   $feed = new SimplePie();
-  $feed->set_cache_location('/tmp');
+  $feed->set_cache_location(file_directory_temp());
   $feed->set_feed_url($user->feed);
   $feed->set_useragent('Drupal Activity Streams');  
   if (!$feed->init()) {
