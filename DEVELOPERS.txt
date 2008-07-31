@@ -39,16 +39,16 @@ If the site you are integrating provides an RSS feed for the user's activity, yo
 For example, the Digg module does this...
 
 function activitystream_digg_streamapi($user) {
-	// This user doesn't have a digg ID entered
-	if (!$user->userid) {
-		return;
-	}
-	
-	// Use the activitystream_feed module to pull in the user's
-	// history. 
-	$user->feed = 'http://digg.com/users/'.$user->userid . '/history.rss';
-	$items = activitystream_feed_streamapi($user);
-	return $items;
+  // This user doesn't have a digg ID entered
+  if (!$user->userid) {
+    return;
+  }
+  
+  // Use the activitystream_feed module to pull in the user's
+  // history. 
+  $user->feed = 'http://digg.com/users/'.$user->userid . '/history.rss';
+  $items = activitystream_feed_streamapi($user);
+  return $items;
 }
 
 activitystream_admin
@@ -61,22 +61,22 @@ Modules should build a form using an array that mirrors the Drupal form API. act
 Example: 
 
 function activitystream_flickr_activitystream_admin() {
-	$form['activitystream_flickr'] = array(
-		'#type' => 'fieldset',
-		'#title' => t("Flickr"),
-		'#description' => t("Flickr API settings."),
-		'#weight' => 1,
-		'#collapsible' => TRUE,
-		'#collapsed' => TRUE
-	);
-	$form['activitystream_flickr']['activitystream_flickr_key'] = array(
-		'#type' => 'textfield',
-		'#title' => t("API Key"),
-		'#description' => t("Your Flickr API Key"),
-		'#default_value' => variable_get('activitystream_flickr_key', ''),
-		'#required' => FALSE
-	);
-	return $form;
+  $form['activitystream_flickr'] = array(
+    '#type' => 'fieldset',
+    '#title' => t("Flickr"),
+    '#description' => t("Flickr API settings."),
+    '#weight' => 1,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE
+  );
+  $form['activitystream_flickr']['activitystream_flickr_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t("API Key"),
+    '#description' => t("Your Flickr API Key"),
+    '#default_value' => variable_get('activitystream_flickr_key', ''),
+    '#required' => FALSE
+  );
+  return $form;
 }
 
 activitystream_settings
@@ -91,7 +91,7 @@ Return the form array.
 Example:
 
 function activitystream_flickr_activitystream_settings() {
-	$form['activitystream_flickr'] = array(
+  $form['activitystream_flickr'] = array(
       '#type' => 'fieldset',
       '#title' => t('Flickr settings'));
   $form['activitystream_flickr']['activitystream_flickr_userid'] = array(
@@ -99,7 +99,7 @@ function activitystream_flickr_activitystream_settings() {
     '#title' => t('Username'),
     '#default_value' => $edit['activitystream_flickr_userid'],
     '#description' => t('The username for your Flickr account'));
-  return $form;	
+  return $form;  
 }
 
 Theme Functions
@@ -113,7 +113,7 @@ Return an image used to identify the activity. Most themes expect this is a 16x1
 Example:
 
 function theme_activitystream_flickr_icon() {
-	return theme_image(drupal_get_path('module', 'activitystream_flickr') . '/flickr.png', 'Flickr');
+  return theme_image(drupal_get_path('module', 'activitystream_flickr') . '/flickr.png', 'Flickr');
 }
 
 
@@ -134,9 +134,9 @@ The item date and username should be run through the activitystream_date and act
 It is recommended that your item theme follow the HTML conventions shown in the example. This will allow theme designers to style stream items using only CSS.
 
 function theme_activitystream_flickr_item($action) {
-	$node = node_load($action->nid);
-	$date = theme('activitystream_date',$node->created);
-	$user = user_load(array('uid' => $node->uid));
-	$name = theme('activitystream_username',$user);
-	return '<span class="activitystream-item">' . theme('activitystream_flickr_icon') . " <span>$name posted " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span> " . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
+  $node = node_load($action->nid);
+  $date = theme('activitystream_date',$node->created);
+  $user = user_load(array('uid' => $node->uid));
+  $name = theme('activitystream_username',$user);
+  return '<span class="activitystream-item">' . theme('activitystream_flickr_icon') . " <span>$name posted " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span> " . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
 }

@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.1 2008/05/20 22:35:54 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.2 2008/07/31 17:05:26 akalsey Exp $
 
 // uid, module, userid, password, feed, lastfetch
 /**
@@ -126,8 +126,11 @@ function activitystream_form_alter(&$form, &$form_state, $form_id) {
  */
 function activitystream_user($op, &$edit, &$account, $category = NULL) {
 	switch ($op) {
+		case 'categories':
+			return array('activitystream' => array('name' => 'activitystream', 'title' => t('Activity Stream'), 'weight' => 0));
+		break;
     case 'form':
-		if ($category == 'Activity Stream') {
+		if ($category == 'activitystream') {
 			foreach (module_implements('activitystream_settings') as $name) {
 				$function = $name .'_activitystream_settings';
 			    $elements = $function($edit);
@@ -141,16 +144,10 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
     case 'update':
 		foreach (module_implements('activitystream_settings') as $name) {
 			$arrDetails = array();
-			if (array_key_exists($name . '_userid',$edit)) {
-				$arrDetails['userid'] = $edit[$name . '_userid'];
-			}
-			if (array_key_exists($name . '_password',$edit)) {
-				$arrDetails['password'] = $edit[$name . '_password'];
-			}
-			if (array_key_exists($name . '_feed',$edit)) {
-				$arrDetails['feed'] = $edit[$name . '_feed'];
-			}
-			activitystream_save_account($name, $account, $arrDetails);				
+			$arrDetails['userid'] = (array_key_exists($name . '_userid', $edit)) ? $edit[$name .'_userid'] : NULL;
+			$arrDetails['password'] = (array_key_exists($name .'_password', $edit)) ? ($eidt[$name .'_password']) : NULL;
+			$arrDetails['feed'] = (array_key_exists($name .'_feed', $edit)) ? $edit[$name .'_feed'] : NULL;
+			activitystream_save_account($name, $account, $arrDetails);
 		}
 		break;
 	  case 'view':
@@ -182,12 +179,11 @@ function activitystream_page($uid = 0) {
 	$output = theme('activitystream',$items);
 	
 	//$output = theme('item_list',$items);
-	if ($page) {
-    // Breadcrumb navigation
-    $breadcrumb[] = l(t($title), 'stream');
-    $breadcrumb[] = l($node->nid, 'node/');
-    drupal_set_breadcrumb($breadcrumb);
-	}
+
+  // Breadcrumb navigation
+  $breadcrumb[] = l(t($title), 'stream');
+  drupal_set_breadcrumb($breadcrumb);
+
   $pager = theme('pager', NULL, 15, 0);
   if (!empty($pager)) {
     $output .= $pager;
@@ -243,7 +239,7 @@ function _activitystream_get_activity($user = null, $show_buddies = false, $coun
 
 		$query = 'SELECT n.title, n.nid, s.module, s.link, s.data, n.created FROM {activitystream} s, {node} n WHERE s.nid=n.nid AND n.status =1 AND n.uid in ('.join(',',array_keys($arrUsers)).') ORDER BY n.created DESC';
 		$countquery = 'SELECT count(*) FROM {activitystream} s, {node} n WHERE s.nid=n.nid AND n.status =1 AND n.uid in ('.join(',',array_keys($arrUsers)).') ORDER BY n.created DESC';
-	} elseif ($user->uid) {
+	} elseif ($user) {
 		$query = "SELECT n.title, n.nid, s.module, s.link, s.data, n.created FROM {activitystream} s, {node} n WHERE s.nid=n.nid AND n.status =1 AND n.uid = " . $user->uid . " ORDER BY n.created DESC";	
 		$countquery = "SELECT count(*) FROM {activitystream} s, {node} n WHERE s.nid=n.nid AND n.status =1 AND n.uid = " . $user->uid . " ORDER BY n.created";	
 	} else {
@@ -251,6 +247,7 @@ function _activitystream_get_activity($user = null, $show_buddies = false, $coun
 		$countquery = 'SELECT count(*) FROM {activitystream} s, {node} n WHERE s.nid=n.nid AND n.status =1 ORDER BY n.created DESC';			
 	}
 	$datehead = '';
+	$items = array();
 	$stream = pager_query($query, $count, 0, $countquery);
 	while ($action = db_fetch_object($stream)) {
 		if (date('Ymd', $action->created) != $datehead) {
@@ -368,7 +365,7 @@ function _activitystream_save($activity, $user, $name) {
 	}
 	$node = db_fetch_object(db_query('SELECT nid FROM {activitystream} WHERE guid = "%s"',$activity['guid']));
 	if ($node->nid) {
-		node_load($node->nid);
+		$node = node_load($node->nid);
 		$new = false;
 	} 
 	else {
