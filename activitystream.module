@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.3 2008/07/31 17:41:56 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.4 2008/08/02 15:52:15 akalsey Exp $
 
 // uid, module, userid, password, feed, lastfetch
 /**
@@ -127,7 +127,7 @@ function activitystream_form_alter(&$form, &$form_state, $form_id) {
 function activitystream_user($op, &$edit, &$account, $category = NULL) {
 	switch ($op) {
 		case 'categories':
-			return array('activitystream' => array('name' => 'activitystream', 'title' => t('Activity Stream'), 'weight' => 0));
+			return array('activitystream' => array('name' => 'activitystream', 'title' => variable_get('activitystream_title', 'Activity Stream'), 'weight' => 0));
 		break;
     case 'form':
 		if ($category == 'activitystream') {
