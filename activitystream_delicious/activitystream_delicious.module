@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_delicious.module,v 1.3 2008/05/16 23:34:33 akalsey Exp $
+// $Id: activitystream_delicious.module,v 1.4 2008/08/12 06:02:03 akalsey Exp $
 
 /*
  * The API passes in a $user object that contains four properties:
@@ -8,18 +8,18 @@
  * uid of their Drupal account.
  */
 function activitystream_delicious_streamapi($user) {
-	// This user doesn't have a Delicious ID entered
-	// into their settings. Move along. Nothing
-	// to see here.
-	if (!$user->userid) {
-		return;
-	}
-	
-	// Use the activitystream_feed module to pull in the user's
-	// del.icio.us links
-	$user->feed = 'http://del.icio.us/rss/'.$user->userid;
-	$items = activitystream_feed_streamapi($user);
-	return $items;
+  // This user doesn't have a Delicious ID entered
+  // into their settings. Move along. Nothing
+  // to see here.
+  if (!$user->userid) {
+    return;
+  }
+  
+  // Use the activitystream_feed module to pull in the user's
+  // del.icio.us links
+  $user->feed = 'http://del.icio.us/rss/'.$user->userid;
+  $items = activitystream_feed_streamapi($user);
+  return $items;
 }
 
 
@@ -39,36 +39,25 @@ function activitystream_delicious_streamapi($user) {
  * 
  */
 function activitystream_delicious_activitystream_settings(&$edit) {
-	$form['activitystream_delicious'] = array(
+  $form['activitystream_delicious'] = array(
       '#type' => 'fieldset',
       '#title' => t('Del.icio.us settings'));
   $form['activitystream_delicious']['activitystream_delicious_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
-    '#default_value' => $edit['activitystream_delicious_userid'],
+    '#default_value' => empty($edit['activitystream_delicious_userid']) ? '' : $edit['activitystream_delicious_userid'],
     '#description' => t('The username for your Del.icio.us account'));
-  return $form;	
+  return $form;  
 }
 
 function theme_activitystream_delicious_icon() {
-	return theme_image(drupal_get_path('module', 'activitystream_delicious') . '/delicious.png', 'Del.icio.us');
+  return theme_image(drupal_get_path('module', 'activitystream_delicious') . '/delicious.png', 'Del.icio.us');
 }
 
 function theme_activitystream_delicious_item($action) {
-	$node = node_load($action->nid);
-	$date = theme('activitystream_date',$node->created);
-	$user = user_load(array('uid' => $node->uid));
-	$name = theme('activitystream_username',$user);
-	return '<span class="activitystream-item">' . theme('activitystream_delicious_icon') . " <span>$name linked to " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('attributes' => array('class' => 'permalink'))) . '</span>';
-}
-
-function activitystream_delicious_theme() {
-  return array(
-    'activitystream_delicious_icon' => array(
-      'arguments' => array(),
-    ),
-    'activitystream_delicious_item' => array(
-      'arguments' => array('action' => NULL),
-    ),
-  );
+  $node = node_load($action->nid);
+  $date = theme('activitystream_date',$node->created);
+  $user = activitystream_user_load($node->uid);
+  $name = theme('activitystream_username',$user);
+  return '<span class="activitystream-item">' . theme('activitystream_delicious_icon') . " <span>$name linked to " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
 }

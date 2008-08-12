@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_twitter.module,v 1.3 2008/05/16 23:34:33 akalsey Exp $
+// $Id: activitystream_twitter.module,v 1.4 2008/08/12 06:02:03 akalsey Exp $
 
 /*
  * The API passes in a $user object that contains four properties:
@@ -8,22 +8,22 @@
  * uid of their Drupal account.
  */
 function activitystream_twitter_streamapi($user) {
-	// This user doesn't have a twitter ID entered
-	if (!$user->userid) {
-		return;
-	}
-	
-	// Use the activitystream_feed module to pull in the user's
-	// tweets. 
-	$user->feed = 'http://twitter.com/statuses/user_timeline/'.$user->userid . '.rss';
-	$items = activitystream_feed_streamapi($user);
-	foreach ($items as $tweet) {
-		$userid = $user->userid . ':';
-		$tweet['title'] = preg_replace('/^'.$userid.' /', '', $tweet['title']);
+  // This user doesn't have a twitter ID entered
+  if (!$user->userid) {
+    return;
+  }
+  
+  // Use the activitystream_feed module to pull in the user's
+  // tweets. 
+  $user->feed = 'http://twitter.com/statuses/user_timeline/'.$user->userid . '.rss';
+  $items = activitystream_feed_streamapi($user);
+  foreach ($items as $tweet) {
+    $userid = $user->userid . ':';
+    $tweet['title'] = preg_replace('/^'.$userid.' /', '', $tweet['title']);
     $tweet['body'] = activitystream_twitter_makelinks($tweet['body']);
-		$newitems[] = $tweet;
-	}
-	return $newitems;
+    $newitems[] = $tweet;
+  }
+  return $newitems;
 }
 
 /*
@@ -43,29 +43,30 @@ function activitystream_twitter_streamapi($user) {
  */
 
 function activitystream_twitter_activitystream_settings(&$edit) {
-	$form['activitystream_twitter'] = array(
+  $form['activitystream_twitter'] = array(
       '#type' => 'fieldset',
       '#title' => t('Twitter settings'));
   $form['activitystream_twitter']['activitystream_twitter_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
-    '#default_value' => $edit['activitystream_twitter_userid'],
+    '#default_value' => empty($edit['activitystream_twitter_userid']) ? '' : $edit['activitystream_twitter_userid'],
     '#description' => t('The username for your Twitter account'));
-  return $form;	
+  return $form;  
 }
 
 function theme_activitystream_twitter_icon() {
-	return theme_image(drupal_get_path('module', 'activitystream_twitter') . '/twitter.png', 'Twitter');
+  return theme_image(drupal_get_path('module', 'activitystream_twitter') . '/twitter.png', 'Twitter');
 }
 
 function theme_activitystream_twitter_item($activity) {
-	$node = node_load($activity->nid);
-	$date = theme('activitystream_date',$node->created);
-	$user = user_load(array('uid' => $node->uid));
+  $node = node_load($activity->nid);
+  $date = theme('activitystream_date',$node->created);
+  $user = user_load(array('uid' => $node->uid));
   $title = activitystream_twitter_makelinks($node->title);
-	$name = theme('activitystream_username',$user);
-	 return '<span class="activitystream-item">' . theme('activitystream_twitter_icon') . " <span>$name " . l('tweeted', $activity->link) . " \"" . $title . "\" <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
+  $name = theme('activitystream_username',$user);
+  return '<span class="activitystream-item">' . theme('activitystream_twitter_icon') . " <span>$name " . l('tweeted', $activity->link) . " \"" . $title . "\" <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
 }
+
 function activitystream_twitter_makelinks($text) {
   // autolink URLS
   $text = eregi_replace('(((f|ht){1}tp://)[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '<a href="\\1">\\1</a>', $text);
@@ -75,15 +76,4 @@ function activitystream_twitter_makelinks($text) {
   // hashtags to hashtag.org
   $text = preg_replace('/#(\w*)/', '<a href="http://hashtags.org/tag/\\1/">#\\1</a>', $text);
   return $text;
-}
-
-function activitystream_twitter_theme() {
-  return array(
-    'activitystream_twitter_icon' => array(
-      'arguments' => array(),
-    ),
-    'activitystream_twitter_item' => array(
-      'arguments' => array('activity' => NULL),
-    ),
-  );
 }

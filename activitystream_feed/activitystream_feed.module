@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_feed.module,v 1.3 2008/05/16 23:34:33 akalsey Exp $
+// $Id: activitystream_feed.module,v 1.4 2008/08/12 06:02:03 akalsey Exp $
 require_once 'simplepie.inc';
 
 /*
@@ -9,35 +9,35 @@ require_once 'simplepie.inc';
  * uid of their Drupal account.
  */
 function activitystream_feed_streamapi($user) {
-	// No feed URL, skip this one
-	if (!$user->feed) {
-		return;
-	}
-
-	$feed = new SimplePie();
-	$feed->set_cache_location('/tmp');
-	$feed->set_feed_url($user->feed);
-	$feed->set_useragent('Drupal Activity Streams');	
-  if(!$feed->init()) {
-    watchdog('activitystream', $feed->error, WATCHDOG_ERROR);
+  // No feed URL, skip this one
+  if (!$user->feed) {
     return;
   }
 
-	$arrFeed = $feed->get_items();
-	$items = array();
-	if (is_array($arrFeed)) {
-		foreach($arrFeed as $item) {
-			$activity['link'] = $item->get_permalink();
-			$activity['title'] = $item->get_title();
-	    $activity['body'] = $item->get_description();
+  $feed = new SimplePie();
+  $feed->set_cache_location(file_directory_temp());
+  $feed->set_feed_url($user->feed);
+  $feed->set_useragent('Drupal Activity Streams');  
+  if(!$feed->init()) {
+    watchdog('activitystream', $feed->error, WATCHDOG_ERROR);
+    return array();
+  }
+
+  $arrFeed = $feed->get_items();
+  $items = array();
+  if (is_array($arrFeed)) {
+    foreach($arrFeed as $item) {
+      $activity['link'] = $item->get_permalink();
+      $activity['title'] = $item->get_title();
+      $activity['body'] = $item->get_description();
       $activity['timestamp'] = strtotime(str_replace(',','',$item->get_date()));
-	    $activity['guid'] = md5($item->get_permalink());
-			$activity['data'] = serialize(array('favicon' => $feed->get_favicon(), 'feedtitle' => $feed->get_title()));
-			$items[] = $activity;
-		}
-	}
-	
-	return $items;
+      $activity['guid'] = md5($item->get_permalink());
+      $activity['data'] = serialize(array('favicon' => $feed->get_favicon(), 'feedtitle' => $feed->get_title()));
+      $items[] = $activity;
+    }
+  }
+  
+  return $items;
 }
 
 /*
@@ -52,44 +52,33 @@ function activitystream_feed_streamapi($user) {
  * use your module's name as the form array's key.
  */
 function activitystream_feed_activitystream_settings(&$edit) {
-	$form['activitystream_feed'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Feed settings'));
+  $form['activitystream_feed'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Feed settings'));
   $form['activitystream_feed']['activitystream_feed_feed'] = array(
     '#type' => 'textarea',
     '#title' => t('Feed URL'),
   '#rows' => 15,
-    '#default_value' => $edit['activitystream_feed_feed'],
+    '#default_value' => empty($edit['activitystream_feed_feed']) ? '' : $edit['activitystream_feed_feed'],
     '#description' => t('URL of the feeds to import as an activity stream. Multiple feeds are allowed; place each on a seperate line.'));
-  return $form;	
+  return $form;  
 }
 
 function theme_activitystream_feed_icon($params) {
-	$params = unserialize($params);
-	// Return the favicon if we have it. Otherwise return a default feed icon.
-	if ($params['favicon']) {
-		return '<img src="' . $params['favicon'] . '" alt="' . $params['feedtitle'] . '" height="16" width="16"/>';		
-	} 
-	else {
-		return theme('image',drupal_get_path('module', 'activitystream_feed') . '/feed-icon-16x16.png',$params['feedtitle'],$params['feedtitle']);
-	}
+  $params = unserialize($params);
+  // Return the favicon if we have it. Otherwise return a default feed icon.
+  if ($params['favicon']) {
+    return '<img src="' . $params['favicon'] . '" alt="' . $params['feedtitle'] . '" height="16" width="16"/>';    
+  } 
+  else {
+    return theme('image',drupal_get_path('module', 'activitystream_feed') .'/feed-icon-16x16.png',$params['feedtitle'],$params['feedtitle']);
+  }
 }
 
 function theme_activitystream_feed_item($activity) {
-	$node = node_load($activity->nid);
-	$date = theme('activitystream_date',$node->created);
-	$user = user_load(array('uid' => $node->uid));
-	$name = theme('activitystream_username',$user);
-	return '<span class="activitystream-item">' . theme('activitystream_feed_icon',$activity->data) . " <span>$name posted " . l($node->title, $activity->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>'."\n";
-}
-
-function activitystream_feed_theme() {
-  return array(
-    'activitystream_feed_icon' => array(
-      'arguments' => array('params' => NULL),
-    ),
-    'activitystream_feed_item' => array(
-      'arguments' => array('activity' => NULL),
-    ),
-  );
+  $node = node_load($activity->nid);
+  $date = theme('activitystream_date',$node->created);
+  $user = user_load(array('uid' => $node->uid));
+  $name = theme('activitystream_username',$user);
+  return '<span class="activitystream-item">' . theme('activitystream_feed_icon',$activity->data) . " <span>$name posted " . l($node->title, $activity->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>'."\n";
 }
