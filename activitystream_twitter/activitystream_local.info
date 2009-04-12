@@ -1,0 +1,7 @@
+; $Id: activitystream_local.info,v 1.1.2.1 2009/04/12 17:34:10 akalsey Exp $
+
+name = Local Activity
+description = Actions a user takes on this Drupal site
+dependencies[] = activitystream 
+package = Activity Stream
+core = 6.x

@@ -1,0 +1,44 @@
+<?php
+// $Id: activitystream_local.module,v 1.1.2.1 2009/04/12 17:34:10 akalsey Exp $
+/**
+ * @file
+ * The module for showing local site activity in a user's stream.
+ */
+
+function activitystream_local_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+	global $user;
+	if ($user->uid == 0) { return; }
+	if ($op == 'insert' && $node->type != 'activitystream') {
+	  $activity['guid'] = md5('local'.'node'.$node->nid.$user->uid);
+	  $nid = activitystream_save_stream($node, $activity, 'local');
+    // $actions = db_query('INSERT into {activitystream_local} (nid,uid,created) VALUES (%d,%d,%d)',$node->nid,$user->uid,time());
+	}
+  // if ($op == 'delete') {
+  //  $actions = db_query('DELETE FROM {activitystream_local} WHERE nid = %d AND uid = %d',$node->nid,$user->uid);
+  // }
+}
+
+function theme_activitystream_local_icon() {
+  return theme_get_setting('favicon');
+  return theme_image(theme_get_setting('favicon'), 'Twitter');
+}
+
+function theme_activitystream_local_item($activity) {
+  $node = node_load($activity->nid);
+  $date = theme('activitystream_date', $node->created);
+  $user = activitystream_user_load(array('uid' => $node->uid));
+  $name = theme('activitystream_username', $user);
+   return '<span class="activitystream-item">'. theme('activitystream_local_icon') ." <span>$name posted". l('posted', 'node/'. $node->nid) ." \"". $node->title ."\" <span class=\"activitystream-created\">$date</span></span></span>";
+}
+
+
+function activitystream_local_theme() {
+  return array(
+    'activitystream_local_icon' => array(
+      'arguments' => array(),
+    ),
+    'activitystream_local_item' => array(
+      'arguments' => array('activity' => NULL),
+    ),
+  );
+}
