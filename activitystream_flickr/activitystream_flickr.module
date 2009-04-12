@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_flickr.module,v 1.2.2.2 2008/07/31 17:05:27 akalsey Exp $
+// $Id: activitystream_flickr.module,v 1.2.2.3 2009/04/12 17:34:33 akalsey Exp $
 /**
  * @file
  * The module for importing Flickr Images.
@@ -63,7 +63,7 @@ function activitystream_flickr_activitystream_admin() {
   $form['activitystream_flickr']['activitystream_flickr_key'] = array(
     '#type' => 'textfield',
     '#title' => t("API Key"),
-    '#description' => t("Your Flickr API Key"),
+    '#description' => t('Your Flickr API Key (<a href="http://www.flickr.com/services/api/keys/apply/">Get a key</a>)'),
     '#default_value' => variable_get('activitystream_flickr_key', ''),
     '#required' => FALSE
   );
