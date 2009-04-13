@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_feed.module,v 1.2.2.4 2009/04/12 17:34:32 akalsey Exp $
+// $Id: activitystream_feed.module,v 1.2.2.5 2009/04/13 19:30:56 akalsey Exp $
 
 /**
  * @file
@@ -9,9 +9,13 @@
 
 $path = drupal_get_path('module', 'activitystream_feed') .'/simplepie.inc';
 
-if (file_exists($path)) {
-  require_once $path;
+if (module_exists('simplepie')) {
+  simplepie_require();
+} else {
+  if (!class_exists('SimplePie') && file_exists($path)) {
+    require_once $path;
   }
+}
 
 /**
  * Implementation of hook_requirements().
@@ -24,7 +28,7 @@ function activitystream_feed_requirements($phase) {
     case 'install' :
     case 'runtime' :
       $path = drupal_get_path('module', 'activitystream_feed') .'/simplepie.inc';
-      if (!file_exists($path)) {
+      if (!file_exists($path) && !module_exists('simplepie')) {
         $requirements['simplepie'] = array(
           'title' => $t("ActivityStream Feed: SimplePie Parser"),
           'description' => $t("Obtain the !simplepie package and copy simplepie.inc to the activitystream/activitystream_feed directory.",
@@ -34,14 +38,23 @@ function activitystream_feed_requirements($phase) {
         );
       }
       elseif ($phase == 'runtime') {
-        require_once($path);
-        $requirements['simplepie'] = array(
-          'title' => $t('ActivityStream Feed: SimplePie Parser'),
-          'description' => t('The current installed version of SimplePie is !version',
-          array('!version' => '<strong>'. SIMPLEPIE_VERSION .'</strong>')),
-          'severity' => REQUIREMENT_OK,
-          'value' => $t('Installed correctly'),
-        );
+        if (module_exists('simplepie')) {
+          $requirements['simplepie'] = array(
+            'title' => $t('ActivityStream Feed: SimplePie Core'),
+            'description' => t('Activity Stream is using the SimplePie Core module with SimplePie version !version',
+            array('!version' => '<strong>'. SIMPLEPIE_VERSION .'</strong>')),
+            'severity' => REQUIREMENT_OK,
+            'value' => $t('Installed correctly'),
+          );
+        } else {
+          $requirements['simplepie'] = array(
+            'title' => $t('ActivityStream Feed: SimplePie Parser'),
+            'description' => t('The current installed version of SimplePie is !version',
+            array('!version' => '<strong>'. SIMPLEPIE_VERSION .'</strong>')),
+            'severity' => REQUIREMENT_OK,
+            'value' => $t('Installed correctly'),
+          );
+        }
       }
   }
   return $requirements;
@@ -80,6 +93,14 @@ function activitystream_feed_streamapi($user) {
       $activity['guid'] = md5($item->get_permalink());
       $activity['data'] = serialize(array('favicon' => $feed->get_favicon(), 'feedtitle' => $feed->get_title()));
       $activity['location'] = array('latitude' => $item->get_latitude(), 'longitude' => $item->get_longitude());
+      if (module_exists('taxonomy') && variable_get('activitystream_vocabulary', -1) > 0) {
+        $categories = $item->get_categories();
+        if ($categories) {
+          foreach ($categories as $category) {
+            $activity['categories'] = explode(' ', $category->term);
+          }
+        }
+      }
       $items[] = $activity;
     }
   }

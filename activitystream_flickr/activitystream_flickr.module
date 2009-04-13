@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_flickr.module,v 1.2.2.3 2009/04/12 17:34:33 akalsey Exp $
+// $Id: activitystream_flickr.module,v 1.2.2.4 2009/04/13 19:30:57 akalsey Exp $
 /**
  * @file
  * The module for importing Flickr Images.
@@ -54,11 +54,10 @@ function activitystream_flickr_streamapi($user) {
 function activitystream_flickr_activitystream_admin() {
   $form['activitystream_flickr'] = array(
     '#type' => 'fieldset',
-    '#title' => t("Flickr"),
-    '#description' => t("Flickr API settings."),
+    '#title' => t("Flickr API settings"),
     '#weight' => 1,
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE
   );
   $form['activitystream_flickr']['activitystream_flickr_key'] = array(
     '#type' => 'textfield',
