@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_flickr.module,v 1.2.2.4 2009/04/13 19:30:57 akalsey Exp $
+// $Id: activitystream_flickr.module,v 1.2.2.5 2009/04/14 21:04:05 akalsey Exp $
 /**
  * @file
  * The module for importing Flickr Images.
@@ -20,18 +20,42 @@ function activitystream_flickr_streamapi($user) {
   if (!$user->userid) {
     return;
   }
-  $f = new phpFlickr(variable_get('activitystream_flickr_key', ''));
-  $person = $f->people_findByUsername($user->userid);
-  $baseurl = $f->urls_getUserPhotos($person['id']);
-  $photos = $f->people_getPublicPhotos($person['id'], NULL, 10);
-  
-  // There's no photos? Jump out.
-  if (!is_array($photos['photo'])) {
+  $apikey = variable_get('activitystream_flickr_key', '');
+  if ($apikey == '') {
+    watchdog('activitystream', 'Flickr API Key is missing.', WATCHDOG_ERROR);
     return;
   }
-   
+  $f = new phpFlickr($apikey, '');
+  // Cache to the filesystem in the temp directory set by Drupal
+  $f->enableCache ('fs', file_directory_temp());
+  if (!$person = $f->people_findByUsername($user->userid)) {
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    return;
+  }
+  if (!$baseurl = $f->urls_getUserPhotos($person['id'])) {
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    return;
+  }
+  if (!$photos = $f->people_getPublicPhotos($person['id'], NULL, NULL, 10)) {
+    watchdog('activitystream', 'Unable to get photos from Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+  }
+  if (!$favorites = $f->favorites_getPublicList($person['id'], NULL, NULL, NULL, 10)) {
+    watchdog('activitystream', 'Unable to get Faorites Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+  }
+  
+  $photoitems = activitystream_flickr_build_items($photos, 'photo', $f);
+  $favoriteitems = activitystream_flickr_build_items($favorites, 'favorite', $f);
+  $items = array_merge($photoitems, $favoriteitems);
+
+  return $items;
+}
+
+function activitystream_flickr_build_items($photos, $type = 'photo', &$f) {
   $items = array();
-  foreach ($photos['photo'] as $photo) {
+  if (!is_array($photos['photos']['photo'])) {
+    return $items;
+  }
+  foreach ($photos['photos']['photo'] as $photo) {
     $info = $f->photos_getInfo($photo['id']);
     $link = $baseurl . $photo['id'];
     $activity['guid'] = $photo['id'];
@@ -39,10 +63,12 @@ function activitystream_flickr_streamapi($user) {
     $activity['link'] = $link;
     $activity['body'] = '<img class="activitystream-flickr photo" alt="'. $photo['title'] .'" src="'. $f->buildPhotoURL($photo, "Square") .'" />';
     $activity['timestamp'] = $info['dateuploaded'];
+    $activity['data'] = serialize(array('type' => $type));
     $items[] = $activity;
   }
   return $items;
 }
+
 
 /*
  * Implement an admin form hook. Modules should build a form
