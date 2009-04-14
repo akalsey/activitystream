@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.8 2009/04/14 04:48:43 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.9 2009/04/14 17:56:07 akalsey Exp $
 
 /**
   * @file
@@ -449,7 +449,8 @@ function theme_activitystream_view($activity) {
 function activitystream_cron() {
   module_load_include('inc', 'node', 'node.pages');
   $number_of_hours = variable_get('activitystream_cron_hours', 1);
-  $result = db_query('SELECT uid, userid, password, feed, module from {activitystream_accounts} WHERE lastfetch < date_sub(now( ) , INTERVAL %d HOUR )', $number_of_hours);
+  $active_days = variable_get('activitystream_active_days', 30);
+  $result = db_query('SELECT a.uid, a.userid, a.password, a.feed, a.module FROM activitystream_accounts a LEFT JOIN users u on a.uid = u.uid  WHERE a.lastfetch < date_sub(now( ) , INTERVAL %d HOUR) AND u.access > unix_timestamp(date_sub(now( ) , INTERVAL %d day)) ORDER BY a.lastfetch DESC, u.access DESC', $number_of_hours, $active_days);
   $users = array();
   while ($user = db_fetch_object($result)) {
     $users[] = $user;
@@ -546,15 +547,31 @@ function activitystream_settings() {
     '#collapsed' => TRUE,
     '#weight' => 9,
   );
+ 
+  // The array needs to be a hash, but I'm too lazy to write it manually. 
+  $cron_hours = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24);
+  $cron_hours = array_combine($cron_hours, $cron_hours)
   
-  $form['advanced']['timeout'] = array(
+  $form['advanced']['activitystream_cron_hours'] = array(
     '#type' => 'select',
     '#title' => t('Hours between updates'),
-    '#options' => array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24),
-    '#default_value' => variable_get('activitystream_cron_hours', 0),
+    '#options' => $cron_hours,
+    '#default_value' => variable_get('activitystream_cron_hours', 1),
     '#description' => t('Sites with large numbers of users (hundreds or more) that are all using Activity Stream can see a performance benefit by updating stream items less often. <br/>Sites with performance issues can also benefit from installing the <a href="http://drupal.org/project/job_queue">Job Queue module</a>.'),
   );
   
+  // The array needs to be a hash, but I'm too lazy to write it manually.
+  $active_days = array(1,5,7,10,30,60,180,365);
+  $active_days = array_combine($cron_hours, $cron_hours)  
+  
+  $form['advanced']['activitystream_active_days'] = array(
+    '#type' => 'select',
+    '#title' => t('Days since last visit for a user to be considered active.'),
+    '#options' => $active_days,
+    '#default_value' => variable_get('activitystream_active_days', 30),
+    '#description' => t('To speed updates, only users that are active on the site are updated. This helps prevent updates for spammers or users that have abandoned the site. 30 days should be good for most sites'),
+  );
+
   $form['buttons']['#weight'] = 10;
   
   foreach (module_implements('activitystream_admin') as $name) {
