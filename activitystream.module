@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.9 2009/04/14 17:56:07 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.10 2009/05/15 20:38:44 akalsey Exp $
 
 /**
   * @file
@@ -377,10 +377,11 @@ function _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $coun
 
 function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count = NULL) {
   $items = _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count = NULL);
+  $return = array();
   foreach ($items as $action) {
     if (date('Ymd', $action->created) != $datehead) {
       $datehead = date('Ymd', $action->created);
-      $items[] = theme('activitystream_header', $action);
+      $return[] = theme('activitystream_header', $action);
     }
     
     if (function_exists('theme_'. $action->module .'_item')) {
@@ -390,9 +391,9 @@ function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count
       $theme_function = 'activitystream_item';
     }
     
-    $items[] = theme($theme_function, $action);
+    $return[] = theme($theme_function, $action);
   }
-  return $items;
+  return $return;
 }
 
 function theme_activitystream_header(&$action) {
@@ -549,20 +550,20 @@ function activitystream_settings() {
   );
  
   // The array needs to be a hash, but I'm too lazy to write it manually. 
-  $cron_hours = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24);
-  $cron_hours = array_combine($cron_hours, $cron_hours)
+  $cron_hours = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24);
+  $cron_hours = array_combine($cron_hours, $cron_hours);
   
   $form['advanced']['activitystream_cron_hours'] = array(
     '#type' => 'select',
     '#title' => t('Hours between updates'),
     '#options' => $cron_hours,
     '#default_value' => variable_get('activitystream_cron_hours', 1),
-    '#description' => t('Sites with large numbers of users (hundreds or more) that are all using Activity Stream can see a performance benefit by updating stream items less often. <br/>Sites with performance issues can also benefit from installing the <a href="http://drupal.org/project/job_queue">Job Queue module</a>.'),
+    '#description' => t('Sites with large numbers of users (hundreds or more) that are all using Activity Stream can see a performance benefit by updating stream items less often. "0" means do not throttle updates and is not recommended for production sites.<br/>Sites with performance issues can also benefit from installing the <a href="http://drupal.org/project/job_queue">Job Queue module</a>.'),
   );
   
   // The array needs to be a hash, but I'm too lazy to write it manually.
   $active_days = array(1,5,7,10,30,60,180,365);
-  $active_days = array_combine($cron_hours, $cron_hours)  
+  $active_days = array_combine($active_days, $active_days);  
   
   $form['advanced']['activitystream_active_days'] = array(
     '#type' => 'select',
