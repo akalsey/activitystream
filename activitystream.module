@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.11 2009/05/16 13:42:54 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.12 2009/05/16 16:40:20 akalsey Exp $
 
 /**
   * @file
@@ -211,6 +211,11 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
       return $form;
       break;
     case 'update':
+      if ($category != 'activitystream') {
+        // The user is saving another tab on the account page, so don't
+        // run the activity stream settings
+        break;
+      }
       foreach (module_implements('activitystream_settings') as $name) {
         if (user_access('use '. $name)) {
           $arrdetails = array();
