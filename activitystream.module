@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.10 2009/05/15 20:38:44 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.11 2009/05/16 13:42:54 akalsey Exp $
 
 /**
   * @file
@@ -178,16 +178,16 @@ function activitystream_form(&$node) {
  */
 function activitystream_user($op, &$edit, &$account, $category = NULL) {
   switch ($op) {
-    case 'categories':
-      $stream_permissions = FALSE;
-      foreach (module_implements('activitystream_settings') as $name) {
-        if (user_access("use $name")) {
-          $stream_permissions = TRUE;
-        }
-        if ($stream_permissions) {
-          return array('activitystream' => array('name' => 'activitystream', 'title' => variable_get('activitystream_title', 'Activity Stream'), 'weight' => 2));
-        }
-      }
+    case 'categories':    
+      return array(
+        array(
+          'name' => 'activitystream', 
+          'title' => variable_get('activitystream_title', 'Activity Stream'), 
+          'weight' => 2,
+          'access callback' => 'activitystream_category_access',
+          'access arguments' => array(1),
+          )
+        );
       break;
     case 'form':
       if ($category == 'activitystream') {
@@ -228,10 +228,24 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
         '#type' => 'user_profile_item',
         '#title' => t($title),
         '#value' => theme('activitystream', $items),
-        '#attributes' => array('class' => 'user'),
+        '#weight' => 8,
+        '#attributes' => array('class' => 'activitystream'),
        );
       break;
   }
+}
+
+function activitystream_category_access($account) {
+  if (user_access('administer users') && $account->uid > 0) {
+    return TRUE;
+  }
+  $stream_permissions = FALSE;
+  foreach (module_implements('activitystream_settings') as $name) {
+    if (user_access("use $name")) {
+      $stream_permissions = TRUE;
+    }
+  }
+  return $stream_permissions;
 }
 
 function activitystream_page($uid = 0) {
