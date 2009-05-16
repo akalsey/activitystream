@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_twitter.module,v 1.2.2.3 2009/05/15 20:38:44 akalsey Exp $
+// $Id: activitystream_twitter.module,v 1.2.2.4 2009/05/16 14:22:10 akalsey Exp $
 /**
  * @file
  * The module for importing twitter activity.
@@ -24,6 +24,11 @@ function activitystream_twitter_streamapi($user) {
   foreach ($items as $tweet) {
     $userid = $user->userid .':';
     $tweet['title'] = preg_replace('/^'. $userid .' /', '', $tweet['title']);
+    // If the admin has asked not to show replies, 
+    // skip any tweet that starts with @
+    if (variable_get('activitystream_twitter_mentions', '1') == 0 && substr($tweet['title'], 0, 1) == '@') {
+      continue;
+    }
     $tweet['body'] = activitystream_twitter_makelinks($tweet['body']);
     $newitems[] = $tweet;
   }
@@ -57,6 +62,26 @@ function activitystream_twitter_activitystream_settings(&$edit) {
     '#description' => t('The username for your Twitter account'));
   return $form;  
 }
+
+function activitystream_twitter_activitystream_admin() {
+  $form['activitystream_twitter'] = array(
+    '#type' => 'fieldset',
+    '#title' => t("Twitter settings"),
+    '#weight' => 1,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE
+  );
+  $form['activitystream_twitter']['activitystream_twitter_mentions'] = array(
+    '#type' => 'radios',
+    '#title' => t("Show replies?"),
+    '#description' => t('Should tweets that begin with @ be displayed in the stream?'),
+    '#options' => array('No','Yes'),
+    '#default_value' => variable_get('activitystream_twitter_mentions', '1'),
+    '#required' => FALSE
+  );
+  return $form;
+}
+
 
 function theme_activitystream_twitter_icon() {
   return theme_image(drupal_get_path('module', 'activitystream_twitter') .'/twitter.png', 'Twitter');
