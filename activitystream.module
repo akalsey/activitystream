@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.14 2009/11/07 05:08:15 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.15 2009/11/07 05:48:14 akalsey Exp $
 
 /**
   * @file
@@ -469,7 +469,7 @@ function activitystream_cron() {
   module_load_include('inc', 'node', 'node.pages');
   $number_of_hours = variable_get('activitystream_cron_hours', 1);
   $active_days = variable_get('activitystream_active_days', 30);
-  $result = db_query('SELECT a.uid, a.userid, a.password, a.feed, a.module FROM activitystream_accounts a LEFT JOIN users u on a.uid = u.uid  WHERE a.lastfetch < date_sub(now( ) , INTERVAL %d HOUR) AND u.access > unix_timestamp(date_sub(now( ) , INTERVAL %d day)) ORDER BY a.lastfetch DESC, u.access DESC', $number_of_hours, $active_days);
+  $result = db_query('SELECT a.uid, a.userid, a.password, a.feed, a.module FROM {activitystream_accounts} a LEFT JOIN {users} u on a.uid = u.uid  WHERE a.lastfetch < date_sub(now( ) , INTERVAL %d HOUR) AND u.access > unix_timestamp(date_sub(now( ) , INTERVAL %d day)) ORDER BY a.lastfetch DESC, u.access DESC', $number_of_hours, $active_days);
   $users = array();
   while ($user = db_fetch_object($result)) {
     $users[] = $user;
