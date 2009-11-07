@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.12 2009/05/16 16:40:20 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.13 2009/11/07 01:38:06 akalsey Exp $
 
 /**
   * @file
@@ -157,18 +157,13 @@ function activitystream_form(&$node) {
 
   $form['title'] = array(
     '#type' => 'textfield',
-    '#title' => check_plain($type->title_label),
+    '#title' => t(check_plain($type->title_label)),
     '#required' => TRUE,
     '#default_value' => $node->title,
     '#weight' => -5,
   );
-  $form['body_field'] = array(
-    '#type' => 'textarea',
-    '#title' => check_plain($type->body_label),
-    '#default_value' => $node->body,
-    '#required' => FALSE,
-  );
- 
+  $form['body_field'] = node_body_field($node, t($type->body_label), $type->min_word_count);
+  
   return $form;
 }
 
@@ -226,7 +221,7 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
         }
       }
       break;
-    case 'view':
+    case 'view':    
       $items = activitystream_get_activity($account);
       $title = variable_get('activitystream_title', 'Activity Stream');
       $account->content['activitystream'] =  array(
@@ -395,12 +390,12 @@ function _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $coun
 }
 
 function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count = NULL) {
-  $items = _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count = NULL);
+  $items = _activitystream_get_activity($user, $show_buddies, $count);
   $return = array();
   foreach ($items as $action) {
     if (date('Ymd', $action->created) != $datehead) {
       $datehead = date('Ymd', $action->created);
-      $return[] = theme('activitystream_header', $action);
+      $return[$datehead]['title'] = theme('activitystream_header', $action);
     }
     
     if (function_exists('theme_'. $action->module .'_item')) {
@@ -410,13 +405,13 @@ function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count
       $theme_function = 'activitystream_item';
     }
     
-    $return[] = theme($theme_function, $action);
+    $return[$datehead]['items'][] = theme($theme_function, $action);
   }
   return $return;
 }
 
-function theme_activitystream_header(&$action) {
-  return '<h3 class="datehead">' . format_date($action->created, 'medium') . '</h3>';
+function theme_activitystream_header($action) {
+  return '<h3 class="datehead">' . format_date($action->created, 'custom', 'F j, Y') . '</h3>';
 }
 
 function theme_activitystream_item($action) {
@@ -437,9 +432,13 @@ function theme_activitystream_item($action) {
 function theme_activitystream($items) {
   drupal_add_css(drupal_get_path('module', 'activitystream') .'/activitystream.css');
   if (!count($items)) {
-    $items = array(t('There are no activities to show.'));
+    $ret = t('There are no activities to show.');
   }
-  return '<div id="activitystream">'."\n". theme('item_list', $items) ."\n</div>";
+  foreach ($items as $day) {
+    $ret .= "\n{$day['title']}\n";
+    $ret .= theme('item_list', $day['items']);
+  }
+  return '<div id="activitystream">'."\n". $ret ."\n</div>";
 }
 
 function theme_activitystream_date($date) {
@@ -618,7 +617,7 @@ function activitystream_invoke_streamapi($user) {
           // The plugin has already created a node, 
           // just save the stream item 
           $node = node_load($activity['nid']);
-          $return[] = activitystream_save_stream(&$node, &$activity, $user->module);            
+          $return[] = activitystream_save_stream($node, &$activity, $user->module);            
         } else {
           // Create a node and save the item
           $return[] = activitystream_save_node($activity, $user, $user->module);              
