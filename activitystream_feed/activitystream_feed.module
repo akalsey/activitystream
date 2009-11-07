@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_feed.module,v 1.2.2.6 2009/11/07 02:16:19 akalsey Exp $
+// $Id: activitystream_feed.module,v 1.2.2.7 2009/11/07 05:44:56 akalsey Exp $
 
 /**
  * @file
@@ -91,6 +91,7 @@ function activitystream_feed_streamapi($user) {
       $activity['body'] = $item->get_description();
       $activity['timestamp'] = strtotime(str_replace(',', '', $item->get_date()));
       $activity['guid'] = md5($item->get_permalink());
+      $activity['id'] = md5($item->get_id());
       $activity['data'] = serialize(array('favicon' => $feed->get_favicon(), 'feedtitle' => $feed->get_title()));
       $activity['location'] = array('latitude' => $item->get_latitude(), 'longitude' => $item->get_longitude());
       if (module_exists('taxonomy') && variable_get('activitystream_vocabulary', -1) > 0) {
