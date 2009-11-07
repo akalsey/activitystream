@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_twitter.module,v 1.2.2.4 2009/05/16 14:22:10 akalsey Exp $
+// $Id: activitystream_twitter.module,v 1.2.2.5 2009/11/07 06:03:53 akalsey Exp $
 /**
  * @file
  * The module for importing twitter activity.
@@ -91,22 +91,34 @@ function theme_activitystream_twitter_item($activity) {
   $node = node_load($activity->nid);
   $date = theme('activitystream_date', $node->created);
   $user = user_load(array('uid' => $node->uid));
-  $title = activitystream_twitter_makelinks($node->title);
+  $linked = activitystream_twitter_makelinks($node->title);
+  $title = $linked[0];
+  // Add twitpic thmbs to the text
+  if ($linked[1] != '') {
+    $pics .= '<br/>'. $linked[1];
+  }
   $name = theme('activitystream_username', $user);
-   return '<span class="activitystream-item">'. theme('activitystream_twitter_icon') ." <span>$name ". l('tweeted', $activity->link) ." \"". $title ."\" <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>';
+   return '<span class="activitystream-item">'. theme('activitystream_twitter_icon') ." <span>$name ". l('tweeted', $activity->link) ." \"". $title ."\" <span class=\"activitystream-created\">$date</span></span> ". l('#', 'node/'. $node->nid, array('class' => 'permalink')) . $pics .'</span>';
 }
+
 function activitystream_twitter_makelinks($text) {
+  // twitpic images
+  preg_match_all("/http:\/\/twitpic\.com\/(.*)/i", $text, $matches, PREG_PATTERN_ORDER);
+  foreach ($matches[1] as $match) {
+    if (!empty($match[1])) {
+      $pics .= '<a href="http://twitpic.com/'. $match .'"><img src="http://twitpic.com/show/mini/'. $match .'.jpg" /></a> ';      
+    }
+  }
   // autolink URLS
   $text = eregi_replace('(((f|ht){1}tp://)[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '<a href="\\1">\\1</a>', $text);
   $text = eregi_replace('([[:space:]()[{}])(www.[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '\\1<a href="http://\\2">\\2</a>', $text);
   // @ tags for users
-  $text = preg_replace('/@(\w*)/', '<a href="http://twitter.com/\\1">@\\1</a>', $text);
+  $text = preg_replace('/\b@(\w*)\b/', '<a href="http://twitter.com/\\1">@\\1</a>', $text);
   // hashtags to search.twitter
-  $text = preg_replace('/#(\w*)/', '<a href="http://search.twitter.com/search?q=%23\\1/">#\\1</a>', $text);
-  // twitpic images
-  $text = preg_replace("/<a href=\"http:\/\/twitpic\.com\/(.*)\">http:\/\/twitpic\.com\/(.*)<\/a>/", 
-                      "<a href=\"http://twitpic.com/$1\"><img src=\"http://twitpic.com/show/thumb/$1.jpg\" /></a>", $text);
-  return $text;
+  $text = preg_replace('/\b#(\w*)\b/', '<a href="http://search.twitter.com/search?q=%23\\1/">#\\1</a>', $text);
+  // $text = preg_replace("/<a href=\"http:\/\/twitpic\.com\/(.*)\">http:\/\/twitpic\.com\/(.*)<\/a>/i", 
+  //                     "<a href=\"http://twitpic.com/$1\"><img src=\"http://twitpic.com/show/mini/$1.jpg\" /></a>", $text);
+  return array($text, $pics);
 }
 
 function activitystream_twitter_theme() {
