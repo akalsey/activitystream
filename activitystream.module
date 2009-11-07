@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.13 2009/11/07 01:38:06 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.14 2009/11/07 05:08:15 akalsey Exp $
 
 /**
   * @file
@@ -617,7 +617,7 @@ function activitystream_invoke_streamapi($user) {
           // The plugin has already created a node, 
           // just save the stream item 
           $node = node_load($activity['nid']);
-          $return[] = activitystream_save_stream($node, &$activity, $user->module);            
+          $return[] = activitystream_save_stream($node, $activity, $user->module);            
         } else {
           // Create a node and save the item
           $return[] = activitystream_save_node($activity, $user, $user->module);              
