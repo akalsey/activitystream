@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_twitter.module,v 1.2.2.5 2009/11/07 06:03:53 akalsey Exp $
+// $Id: activitystream_twitter.module,v 1.2.2.6 2009/11/09 22:05:45 akalsey Exp $
 /**
  * @file
  * The module for importing twitter activity.
@@ -115,7 +115,7 @@ function activitystream_twitter_makelinks($text) {
   // @ tags for users
   $text = preg_replace('/\b@(\w*)\b/', '<a href="http://twitter.com/\\1">@\\1</a>', $text);
   // hashtags to search.twitter
-  $text = preg_replace('/\b#(\w*)\b/', '<a href="http://search.twitter.com/search?q=%23\\1/">#\\1</a>', $text);
+  $text = preg_replace('/\b#(\w*)\b/', '<a href="http://search.twitter.com/search?q=%23\\1">#\\1</a>', $text);
   // $text = preg_replace("/<a href=\"http:\/\/twitpic\.com\/(.*)\">http:\/\/twitpic\.com\/(.*)<\/a>/i", 
   //                     "<a href=\"http://twitpic.com/$1\"><img src=\"http://twitpic.com/show/mini/$1.jpg\" /></a>", $text);
   return array($text, $pics);
