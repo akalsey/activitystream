@@ -1,0 +1,335 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  activitystream.views.inc: n/a
+#  activitystream.module,v 1.2.2.5.2.13 2009/05/16 16:40:11 akalsey
+#  activitystream.info,v 1.2.2.2 2008/07/31 17:05:26 akalsey
+#  activitystream_delicious.info,v 1.2.2.1 2008/05/20 22:35:54 akalsey
+#  activitystream_digg.info,v 1.2.2.1 2008/05/20 22:35:54 akalsey
+#  activitystream_feed.info,v 1.2.2.1 2008/05/20 22:35:54 akalsey
+#  activitystream_flickr.info,v 1.2.2.1 2008/05/20 22:35:54 akalsey
+#  activitystream_lastfm.info,v 1.2.2.1 2008/05/20 22:35:55 akalsey
+#  activitystream_twitter.info,v 1.2.2.1 2008/05/20 22:35:55 akalsey
+#  activitystream.install,v 1.3.2.2.2.2 2008/10/14 04:36:29 akalsey
+#  activitystream_delicious.module,v 1.2.2.2.2.1 2008/08/16 08:51:43 akalsey
+#  activitystream_digg.module,v 1.1.4.2.2.1 2008/08/16 08:51:43 akalsey
+#  activitystream_flickr.module,v 1.2.2.2.2.1 2008/08/16 08:51:43 akalsey
+#  activitystream_lastfm.module,v 1.1.4.2.2.1 2008/08/16 08:51:43 akalsey
+#  activitystream_twitter.module,v 1.2.2.2.2.1 2008/08/16 08:51:43 akalsey
+#  activitystream_feed.module,v 1.2.2.3.2.2 2008/08/16 18:09:11 akalsey
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-06-29 21:59+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: activitystream.views.inc:210 activitystream.module:231;56;65 activitystream.info:0 activitystream_delicious/activitystream_delicious.info:0 activitystream_digg/activitystream_digg.info:0 activitystream_feed/activitystream_feed.info:0 activitystream_flickr/activitystream_flickr.info:0 activitystream_lastfm/activitystream_lastfm.info:0 activitystream_twitter/activitystream_twitter.info:0
+msgid "Activity Stream"
+msgstr ""
+
+#: activitystream.views.inc:219
+msgid "Source"
+msgstr ""
+
+#: activitystream.views.inc:220
+msgid "The name of the Activity Stream plugin that provides the data. Usually the name of the site the data came from"
+msgstr ""
+
+#: activitystream.views.inc:237
+msgid "Link"
+msgstr ""
+
+#: activitystream.views.inc:238
+msgid "The link to the original activity. Usually the originating site (Flickr, Twitter, etc)."
+msgstr ""
+
+#: activitystream.views.inc:252
+msgid "Icon"
+msgstr ""
+
+#: activitystream.views.inc:254
+msgid "The icon from the Activity Stream source"
+msgstr ""
+
+#: activitystream.module:9
+msgid "Welcome to your Activity Stream setup page. You can create a lifestream by simply providing some account information for third party sites."
+msgstr ""
+
+#: activitystream.module:86
+msgid "Activity Stream Item"
+msgstr ""
+
+#: activitystream.module:88;89
+msgid "A node type to contain items from your activity stream. You shouldn't create these nodes directly."
+msgstr ""
+
+#: activitystream.module:90
+msgid "Body"
+msgstr ""
+
+#: activitystream.module:231
+msgid "Home"
+msgstr ""
+
+#: activitystream.module:350
+msgid "There are no activities to show."
+msgstr ""
+
+#: activitystream.module:394
+msgid "Title"
+msgstr ""
+
+#: activitystream.module:396
+msgid "The title of the Activiy Stream in blocks and User Profiles."
+msgstr ""
+
+#: activitystream.module:400
+msgid "Description for Users"
+msgstr ""
+
+#: activitystream.module:402
+msgid "The description that is shown to users on the page asking for their account information."
+msgstr ""
+
+#: activitystream.module:514
+msgid "Added %title from %name"
+msgstr ""
+
+#: activitystream.module:518
+msgid "Updated %title from %name"
+msgstr ""
+
+#: activitystream.module:510;0
+msgid "activitystream"
+msgstr ""
+
+#: activitystream.module:510
+msgid "Cannot save stream item. Check the Drupal log for database errors."
+msgstr ""
+
+#: activitystream.module:77
+msgid "edit own stream items"
+msgstr ""
+
+#: activitystream.module:77
+msgid "edit any stream item"
+msgstr ""
+
+#: activitystream.module:77
+msgid "delete own stream items"
+msgstr ""
+
+#: activitystream.module:77
+msgid "delete any stream item"
+msgstr ""
+
+#: activitystream.module:57
+msgid "Administer settings for activity feeds"
+msgstr ""
+
+#: activitystream.install:26
+msgid "Activity Stream module installed successfully."
+msgstr ""
+
+#: activitystream.info:0
+msgid "Activity Stream Core"
+msgstr ""
+
+#: activitystream.info:0
+msgid "Core API module for Activity Streams"
+msgstr ""
+
+#: activitystream_delicious/activitystream_delicious.module:48
+msgid "Del.icio.us settings"
+msgstr ""
+
+#: activitystream_delicious/activitystream_delicious.module:51 activitystream_digg/activitystream_digg.module:50 activitystream_flickr/activitystream_flickr.module:90 activitystream_lastfm/activitystream_lastfm.module:50 activitystream_twitter/activitystream_twitter.module:55
+msgid "Username"
+msgstr ""
+
+#: activitystream_delicious/activitystream_delicious.module:53
+msgid "The username for your Del.icio.us account"
+msgstr ""
+
+#: activitystream_delicious/activitystream_delicious.module:66
+msgid "linked to"
+msgstr ""
+
+#: activitystream_delicious/activitystream_delicious.module:0
+msgid "activitystream_delicious"
+msgstr ""
+
+#: activitystream_delicious/activitystream_delicious.info:0
+msgid "Delicious Bookmarks"
+msgstr ""
+
+#: activitystream_delicious/activitystream_delicious.info:0
+msgid "Your links on Delicious"
+msgstr ""
+
+#: activitystream_digg/activitystream_digg.module:47
+msgid "Digg settings"
+msgstr ""
+
+#: activitystream_digg/activitystream_digg.module:52
+msgid "Your digg username"
+msgstr ""
+
+#: activitystream_digg/activitystream_digg.module:65
+msgid "dugg"
+msgstr ""
+
+#: activitystream_digg/activitystream_digg.module:0
+msgid "activitystream_digg"
+msgstr ""
+
+#: activitystream_digg/activitystream_digg.info:0
+msgid "Digg"
+msgstr ""
+
+#: activitystream_digg/activitystream_digg.info:0
+msgid "What's been Dugg"
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.module:40
+msgid "The current installed version of SimplePie is !version"
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.module:103
+msgid "Feed settings"
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.module:106
+msgid "Feed URL"
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.module:109
+msgid "URL of the feeds to import as an activity stream. Multiple feeds are allowed; place each on a seperate line."
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.module:129 activitystream_flickr/activitystream_flickr.module:109
+msgid "posted"
+msgstr ""
+
+#: (duplicate) activitystream_feed/activitystream_feed.module:29 ;39 
+msgid "ActivityStream Feed: SimplePie Parser"
+msgstr ""
+
+#: (duplicate) activitystream_feed/activitystream_feed.module:30 
+msgid "Obtain the !simplepie package and copy simplepie.inc to the activitystream/activitystream_feed directory."
+msgstr ""
+
+#: (duplicate) activitystream_feed/activitystream_feed.module:33 
+msgid "simplepie.inc file missing"
+msgstr ""
+
+#: (duplicate) activitystream_feed/activitystream_feed.module:43 
+msgid "Installed correctly"
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.module:0
+msgid "activitystream_feed"
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.info:0
+msgid "Feed stream"
+msgstr ""
+
+#: activitystream_feed/activitystream_feed.info:0
+msgid "Pull in updates from any feed, includes the favicon"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.module:57
+msgid "Flickr"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.module:58
+msgid "Flickr API settings."
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.module:65
+msgid "API Key"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.module:66
+msgid "Your Flickr API Key"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.module:87
+msgid "Flickr settings"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.module:92
+msgid "The username for your Flickr account"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.module:0
+msgid "activitystream_flickr"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.info:0
+msgid "Flickr Stream"
+msgstr ""
+
+#: activitystream_flickr/activitystream_flickr.info:0
+msgid "Your activity on Flickr"
+msgstr ""
+
+#: activitystream_lastfm/activitystream_lastfm.module:47
+msgid "lastfm settings"
+msgstr ""
+
+#: activitystream_lastfm/activitystream_lastfm.module:52
+msgid "The username for your lastfm account"
+msgstr ""
+
+#: activitystream_lastfm/activitystream_lastfm.module:65
+msgid "listened to"
+msgstr ""
+
+#: activitystream_lastfm/activitystream_lastfm.module:0
+msgid "activitystream_lastfm"
+msgstr ""
+
+#: activitystream_lastfm/activitystream_lastfm.info:0
+msgid "Last.fm"
+msgstr ""
+
+#: activitystream_lastfm/activitystream_lastfm.info:0
+msgid "What you're listening to"
+msgstr ""
+
+#: activitystream_twitter/activitystream_twitter.module:52
+msgid "Twitter settings"
+msgstr ""
+
+#: activitystream_twitter/activitystream_twitter.module:57
+msgid "The username for your Twitter account"
+msgstr ""
+
+#: activitystream_twitter/activitystream_twitter.module:71
+msgid "tweeted"
+msgstr ""
+
+#: activitystream_twitter/activitystream_twitter.module:0
+msgid "activitystream_twitter"
+msgstr ""
+
+#: activitystream_twitter/activitystream_twitter.info:0
+msgid "Twitter"
+msgstr ""
+
+#: activitystream_twitter/activitystream_twitter.info:0
+msgid "Public Twitter tweets"
+msgstr ""
+
