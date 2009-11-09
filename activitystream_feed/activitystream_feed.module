@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_feed.module,v 1.2.2.7 2009/11/07 05:44:56 akalsey Exp $
+// $Id: activitystream_feed.module,v 1.2.2.8 2009/11/09 22:41:49 akalsey Exp $
 
 /**
  * @file
@@ -78,7 +78,7 @@ function activitystream_feed_streamapi($user) {
   $feed->set_useragent('Drupal Activity Streams');
   $feed->force_feed(TRUE);
   if (!$feed->init()) {
-    watchdog('activitystream', $feed->error .' - '. $user->feed, WATCHDOG_ERROR);
+    watchdog('activitystream', '%message', array('%message' => $feed->error .' - '. $user->feed), WATCHDOG_ERROR);
     return;
   }
 
@@ -149,7 +149,7 @@ function theme_activitystream_feed_item($activity) {
   $date = theme('activitystream_date', $node->created);
   $user = user_load(array('uid' => $node->uid));
   $name = theme('activitystream_username', $user);
-  return '<span class="activitystream-item">'. theme('activitystream_feed_icon', $activity->data) ." <span>$name posted ". l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>'."\n";
+  return '<span class="activitystream-item">'. theme('activitystream_feed_icon', $activity->data) ." <span>$name " . t('posted') . " ". l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>'."\n";
 }
 
 function activitystream_feed_theme() {

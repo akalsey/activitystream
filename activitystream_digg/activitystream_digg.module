@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_digg.module,v 1.1.4.2 2008/07/31 17:05:26 akalsey Exp $
+// $Id: activitystream_digg.module,v 1.1.4.3 2009/11/09 22:41:49 akalsey Exp $
 
 /**
  * @file
@@ -62,7 +62,7 @@ function theme_activitystream_digg_item($activity) {
   $date = theme('activitystream_date', $node->created);
   $user = user_load(array('uid' => $node->uid));
   $name = theme('activitystream_username', $user);
-  return '<span class="activitystream-item">'. theme('activitystream_digg_icon') ." <span>$name dugg ". l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>';
+  return '<span class="activitystream-item">'. theme('activitystream_digg_icon') ." <span>$name " . t('dugg') . " " . l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>';
 }
 
 function activitystream_digg_theme() {

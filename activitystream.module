@@ -1,12 +1,12 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.15 2009/11/07 05:48:14 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.16 2009/11/09 22:41:49 akalsey Exp $
 
 /**
   * @file
   * Activity Stream module
   */
   
-define('ACTIVITYSTREAM_DEFAULT_INTRO', 'Welcome to your Activity Stream setup page. You can create a lifestream by simply providing some account information for third party sites.');
+define('ACTIVITYSTREAM_DEFAULT_INTRO', t('Welcome to your Activity Stream setup page. You can create a lifestream by simply providing some account information for third party sites.'));
 
 /**
  * Invoke a node hook.
@@ -189,7 +189,7 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
         drupal_set_title(variable_get('activitystream_title', 'Activity Stream'));
         $form = array();
         $form['intro'] = array(
-          '#value' => '<p>' . variable_get('activitystream_user_description', t(ACTIVITYSTREAM_DEFAULT_INTRO)) . '</p>',
+          '#value' => '<p>' . variable_get('activitystream_user_description', ACTIVITYSTREAM_DEFAULT_INTRO) . '</p>',
           '#weight' => -10,
         );
       
@@ -226,7 +226,7 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
       $title = variable_get('activitystream_title', 'Activity Stream');
       $account->content['activitystream'] =  array(
         '#type' => 'user_profile_item',
-        '#title' => t($title),
+        '#title' => $title,
         '#value' => theme('activitystream', $items),
         '#weight' => 8,
         '#attributes' => array('class' => 'activitystream'),
@@ -346,7 +346,7 @@ function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
 
   if ($page) {
     // Breadcrumb navigation
-    $breadcrumb[] = l(t($title), 'stream');
+    $breadcrumb[] = l($title, 'stream');
     $breadcrumb[] = l($user->name .'\'s '. $title, 'stream/'. $user->uid);
     $breadcrumb[] = l($node->nid, 'node/');
     drupal_set_breadcrumb($breadcrumb);
@@ -534,7 +534,7 @@ function activitystream_settings() {
   $form['activitystream_user_description'] = array(
     '#type' => 'textarea',
     '#title' => t('Description for Users'),
-    '#default_value' => variable_get('activitystream_user_description', t(ACTIVITYSTREAM_DEFAULT_INTRO)),
+    '#default_value' => variable_get('activitystream_user_description', ACTIVITYSTREAM_DEFAULT_INTRO),
     '#description' => t('The description that is shown to users on the page asking for their account information.'),
   );
   
@@ -728,18 +728,18 @@ function activitystream_save_stream(&$node, &$activity, $name) {
     // This is an existing item. Update.
     $actions = db_query('UPDATE {activitystream} SET changed = %d', $node->changed);    
     if (!$actions) {
-      watchdog('activitystream', t('Cannot update stream item. Check the Drupal log for database errors.'));
+      watchdog('activitystream', 'Cannot update stream item. Check the Drupal log for database errors.');
       return NULL;            
     }
-    watchdog('activitystream', t('Updated %title from %name', array('%title' => $node->title, '%name' => $name)));    
+    watchdog('activitystream', 'Updated %title from %name', array('%title' => $node->title, '%name' => $name));    
     return $node->nid;    
   } else {
     $actions = db_query('INSERT into {activitystream} (nid, module, guid, link, data, changed) VALUES (%d,\'%s\', \'%s\',\'%s\',\'%s\', %d)', $node->nid, $name, $activity['guid'], $activity['link'], $activity['data'], $node->changed);
     if (!$actions) {
-      watchdog('activitystream', t('Cannot save stream item. Check the Drupal log for database errors.'));
+      watchdog('activitystream', 'Cannot save stream item. Check the Drupal log for database errors.');
       return NULL;            
     }
-    watchdog('activitystream', t('Added %title from %name', array('%title' => $node->title, '%name' => $name)));    
+    watchdog('activitystream', 'Added %title from %name', array('%title' => $node->title, '%name' => $name));    
     return $node->nid;    
   }
 }
@@ -790,7 +790,7 @@ function activitystream_block($op = 'list', $delta = 0) {
     switch ($delta) {
       case 0:
         $title = variable_get('activitystream_title', 'Activity Stream');
-        $block['subject'] = t($title);
+        $block['subject'] = $title;
         $block['content'] = block_activitystream_content(0);
         break;
 

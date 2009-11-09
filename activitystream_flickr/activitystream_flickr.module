@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_flickr.module,v 1.2.2.5 2009/04/14 21:04:05 akalsey Exp $
+// $Id: activitystream_flickr.module,v 1.2.2.6 2009/11/09 22:41:49 akalsey Exp $
 /**
  * @file
  * The module for importing Flickr Images.
@@ -131,7 +131,7 @@ function theme_activitystream_flickr_item($action) {
   $date = theme('activitystream_date', $node->created);
   $user = user_load(array('uid' => $node->uid));
   $name = theme('activitystream_username', $user);
-  return '<span class="activitystream-item">'. theme('activitystream_flickr_icon') ." <span>$name posted " . l($node->title, $action->link) ." <span class=\"activitystream-created\">$date</span></span> ". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>';
+  return '<span class="activitystream-item">'. theme('activitystream_flickr_icon') ." <span>$name " . t('posted') . " " . l($node->title, $action->link) ." <span class=\"activitystream-created\">$date</span></span> ". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>';
 }
 
 

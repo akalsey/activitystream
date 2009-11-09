@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream_delicious.module,v 1.2.2.2 2008/07/31 17:05:26 akalsey Exp $
+// $Id: activitystream_delicious.module,v 1.2.2.3 2009/11/09 22:41:49 akalsey Exp $
 /**
  * @file
  * The module for importing del.icio.us links
@@ -63,7 +63,7 @@ function theme_activitystream_delicious_item($action) {
   $date = theme('activitystream_date', $node->created);
   $user = user_load(array('uid' => $node->uid));
   $name = theme('activitystream_username', $user);
-  return '<span class="activitystream-item">'. theme('activitystream_delicious_icon') ." <span>$name linked to ". l($node->title, $action->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('attributes' => array('class' => 'permalink'))) .'</span>';
+  return '<span class="activitystream-item">' . theme('activitystream_delicious_icon') . " <span>$name " . t('linked to'). " " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span>" . l('#', 'node/' . $node->nid, array('attributes' => array('class' => 'permalink'))) . '</span>';
 }
 
 function activitystream_delicious_theme() {
