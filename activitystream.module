@@ -1,5 +1,5 @@
 <?php
-// $Id: activitystream.module,v 1.2.2.17 2009/11/09 23:36:36 akalsey Exp $
+// $Id: activitystream.module,v 1.2.2.18 2009/11/25 05:19:35 akalsey Exp $
 
 /**
   * @file
@@ -414,7 +414,7 @@ function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count
 }
 
 function theme_activitystream_header($action) {
-  return '<h3 class="datehead">' . format_date($action->created, 'custom', 'F j, Y') . '</h3>';
+  return '<h3 class="datehead">'. format_date($action->created, 'medium') .'</h3>';
 }
 
 function theme_activitystream_item($action) {
