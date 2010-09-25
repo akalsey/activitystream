@@ -43,14 +43,14 @@ function activitystream_flickr_streamapi($user) {
     watchdog('activitystream', 'Unable to get Faorites Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
   }
   
-  $photoitems = activitystream_flickr_build_items($photos, 'photo', $f);
-  $favoriteitems = activitystream_flickr_build_items($favorites, 'favorite', $f);
+  $photoitems = activitystream_flickr_build_items($photos, $baseurl, 'photo', $f);
+  $favoriteitems = activitystream_flickr_build_items($favorites, $baseurl, 'favorite', $f);
   $items = array_merge($photoitems, $favoriteitems);
 
   return $items;
 }
 
-function activitystream_flickr_build_items($photos, $type = 'photo', &$f) {
+function activitystream_flickr_build_items($photos, $baseurl, $type = 'photo', &$f) {
   $items = array();
   if (!is_array($photos['photos']['photo'])) {
     return $items;
