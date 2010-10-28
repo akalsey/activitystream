@@ -4,4 +4,4 @@ name = Feed stream
 description = Pull in updates from any feed, includes the favicon
 dependencies[] = activitystream 
 package = Activity Stream
-core = 6.x
+core = 7.x

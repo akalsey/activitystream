@@ -62,7 +62,7 @@ function activitystream_save_account($module, &$user, $params) {
 function activitystream_menu() {
   $items = array();
 
-  $items['admin/settings/activitystream'] = array(
+  $items['admin/config/system/activitystream'] = array(
     'title' => 'Activity Stream',
     'description' => 'Administer settings for activity feeds',
     'page callback' => 'drupal_get_form',
@@ -84,7 +84,6 @@ function activitystream_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
-
   return $items;
 }
 
@@ -167,12 +166,47 @@ function activitystream_form(&$node) {
   return $form;
 }
 
+function activitystream_form_alter(&$form, &$form_state, $form_id) {
+  if(isset($form['#user_category']) && $form['#user_category'] == 'activitystream') {
+    drupal_set_title(variable_get('activitystream_title', 'Activity Stream'));
+    $form['intro'] = array(
+      '#type' => 'item',
+      '#markup' => '<p>' . variable_get('activitystream_user_description', ACTIVITYSTREAM_DEFAULT_INTRO) . '</p>',
+      '#weight' => -10,
+    );
+
+    foreach (module_implements('activitystream_settings') as $name) {
+      if (user_access('use '. $name)) {
+        $function = $name .'_activitystream_settings';
+        $elements = $function($edit);
+        foreach ($elements as $key => $value) {
+          $form[$key] = $value;
+        }          
+      }
+    }
+  }
+}
+
+function activitystream_user_categories() {
+    return array(
+      array(
+        'name' => 'activitystream', 
+        'title' => variable_get('activitystream_title', 'Activity Stream'), 
+        'weight' => 2,
+        'access callback' => 'activitystream_category_access',
+        'access arguments' => array(1),
+        )
+      );
+}
+
+
 
 /**
  * Implementation of hook_user()
  */
 function activitystream_user($op, &$edit, &$account, $category = NULL) {
-  switch ($op) {
+  /*
+switch ($op) {
     case 'categories':    
       return array(
         array(
@@ -236,6 +270,8 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
       $result = db_query('DELETE FROM {activitystream_accounts} WHERE uid = %d', $account->uid);
       break;
   }
+*/
+
 }
 
 function activitystream_category_access($account) {
@@ -255,7 +291,7 @@ function activitystream_page($uid = 0) {
   drupal_add_css(drupal_get_path('module', 'activitystream') .'/activitystream.css');
   $title = variable_get('activitystream_title', 'Activity Stream');
   if ($uid) {
-    $user = activitystream_user_load($uid);
+    $user = _activitystream_user_load($uid);
     drupal_set_title(check_plain($user->name .'\'s ' . $title));
     $items = activitystream_get_activity($user);
     drupal_set_breadcrumb(array(l(t('Home'), NULL), l(t('Activity Stream'), 'stream')));
@@ -283,7 +319,7 @@ function activitystream_feed($uid = 0) {
   
   $title = variable_get('activitystream_title', 'Activity Stream');
   if ($uid) {
-    $user = activitystream_user_load($uid);
+    $user = _activitystream_user_load($uid);
     $title = check_plain($user->name .'\'s ' . $title);
     $items = _activitystream_get_activity($user);
   } 
@@ -334,7 +370,7 @@ function activitystream_feed($uid = 0) {
   hook_view
 */
 function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
-  $user = activitystream_user_load($node->uid);
+  $user = _activitystream_user_load($node->uid);
   $title = variable_get('activitystream_title', 'Activity Stream');
   $node->body = check_markup($node->body, $node->format, FALSE);
 
@@ -367,7 +403,7 @@ function _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $coun
     // Since a number of items might be from the same buddy, load the users now and stuff them
     // into an array for later. This avoids loading the same user multiple times.
     while ($buddy = db_fetch_object($buddies)) {
-      $objbuddy = activitystream_user_load($buddy->bid);
+      $objbuddy = _activitystream_user_load($buddy->bid);
     }
     if (count($arrusers) == 0) {
       // No buddies
@@ -420,7 +456,7 @@ function theme_activitystream_header($action) {
 function theme_activitystream_item($action) {
   $node = node_load($action->nid);
   $date = theme('activitystream_date',$node->created);
-  $user = activitystream_user_load($node->uid);
+  $user = _activitystream_user_load($node->uid);
   $name = theme('activitystream_username',$user);
   if (function_exists('theme_'.$action->module .'_icon')) {
     $theme_function = $action->module .'_icon';
@@ -634,15 +670,15 @@ function activitystream_invoke_streamapi($user) {
 /**
  * Shortcut the user_load function if we already have loaded this user.
  */
-function activitystream_user_load($uid) {
+function _activitystream_user_load($uid) {
   static $arr_users;
-  if (!is_array($arr_users)) {
+  if (!empty($arr_users)) {
     $arr_users = array();
   }
-  if ($arr_users[$uid]) {
+  if (isset($arr_users) && isset($arr_users[$uid])) {
     return $arr_users[$uid];
   } else {
-    $user = user_load(array('uid' => $uid));
+    $user = user_load($uid);
     $arr_users[$uid] = $user;
     return $user;    
   }
@@ -800,7 +836,7 @@ function activitystream_block($op = 'list', $delta = 0) {
       case 1:
         // basic validation
         $arg = arg();
-        if (count($arg) == 2 && $arg[0] == 'user' && is_numeric($arg[1]) && ($user = activitystream_user_load($arg[1]))) {
+        if (count($arg) == 2 && $arg[0] == 'user' && is_numeric($arg[1]) && ($user = _activitystream_user_load($arg[1]))) {
           $block['subject'] = t('My activity');
           $block['content'] = block_activitystream_content(1, $user);
         }

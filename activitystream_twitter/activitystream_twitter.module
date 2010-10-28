@@ -54,7 +54,11 @@ function activitystream_twitter_streamapi($user) {
 function activitystream_twitter_activitystream_settings(&$edit) {
   $form['activitystream_twitter'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Twitter settings'));
+      '#title' => t('Twitter settings'),
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE, 
+      '#tree' => TRUE,
+  );
   $form['activitystream_twitter']['activitystream_twitter_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),

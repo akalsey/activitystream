@@ -21,9 +21,6 @@
  */
 
 function activitystream_install() {
-  //create tables
-  drupal_install_schema('activitystream');
-  drupal_set_message(t('Activity Stream module installed successfully.'));
   db_query("UPDATE {system} SET weight = 100 WHERE name  = 'activitystream'");
 }
 
@@ -51,39 +48,10 @@ function activitystream_schema() {
        'userid' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
        'password' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
        'feed' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
-       'lastfetch' => array('type' => 'datetime', 'not null' => TRUE)),
+       'lastfetch' => array('mysql_type' => 'datetime', 'not null' => TRUE)), //NOTE, see documentation here for why this becomes mysql_type: http://drupal.org/update/modules/6/7#db_specific_types
        );
 
   return $schema;
 }
 
-/**
- * Implementation of hook_uninstall().
- */
 
-function activitystream_uninstall() {
-  //remove tables
-  drupal_uninstall_schema('activitystream');
-  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE 'activitystream%%'");
-  while ($variable = db_fetch_object($variables)) {
-    variable_del($variable->name);
-  }
-  update_sql("DELETE FROM {system} WHERE name like '%activitystream'");
-}
-
-/*
-  Instead of using the dummy category, we now use hook_user's categories $op switch.
-  So we can remove the dummy category from the database.
-*/
-function activitystream_update_1() {
-  if (module_exists('profile')) {
-    db_query("DELETE FROM {profile_fields} WHERE title = 'Placeholder' and name = 'profile_activitystream_placeholder'");    
-  }
-}
-
-/*
-  Move the module weight to the bottom so it's likely to run after Simplepie.
- */
-function activitystream_update_2() {
-  db_query("UPDATE {system} SET weight = 100 WHERE name  = 'activitystream'");
-}
