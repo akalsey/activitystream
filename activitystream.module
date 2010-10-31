@@ -36,7 +36,7 @@ function activitystream_save_account($module, &$user, $params) {
   if (count($params) == 0) {
     return FALSE;
   }
-  $result = db_query('DELETE FROM {activitystream_accounts} WHERE module = \'%s\' and uid = %d', $module, $user->uid);
+  $result = db_query('DELETE FROM {activitystream_accounts} WHERE module = :module and uid = :uid', array(':module' => $module, ':uid'  => $user->uid));
   if (empty($params['userid']) && empty($params['password']) && empty($params['feed'])) {
     return;
   }
@@ -45,7 +45,7 @@ function activitystream_save_account($module, &$user, $params) {
   $users = array();
   foreach ($arrfeeds as $url) {
     $params['feed'] = $url;
-    $result = db_query('INSERT INTO {activitystream_accounts} (module, uid, userid, password, feed) VALUES (\'%s\', %d, \'%s\', \'%s\', \'%s\')', $module, $user->uid, $params['userid'], $params['password'], $params['feed']);   
+    $result = db_query('INSERT INTO {activitystream_accounts} (module, uid, userid, password, feed) VALUES (:module, :uid, :userid, :password, :feed)', array(':module' => $module, ':uid' => $user->uid, ':userid' => $params['userid'], ':password' => $params['password'], ':feed' => $params['feed']));
     $user = (object) array(
         'uid' => $user->uid,
         'userid' => $params['userid'],
@@ -90,12 +90,13 @@ function activitystream_menu() {
 /**
  * Implementation of hook_perm().
  */
-function activitystream_perm() {
-  $default_perms = array('edit own stream items', 'edit any stream item', 'delete own stream items', 'delete any stream item');
+function activitystream_permission() {
+  $default_perms = array('edit own stream items' => array('title' => t('Edit own stream items')), 'edit any stream item'=> array('title' => t('Edit any stream items')), 'delete own stream items' => array('title' => t('Delete own stream items')), 'delete any stream item' => array('title' => t('Delete own stream items')));
   $module_perms = array();
   foreach (module_implements('activitystream_settings') as $name) {
-    $module_perms[] = 'use '. $name;
+    $module_perms['use '. $name] = array('title'=> t('Use') . ' ' . $name . ' ' . t('module'));
   }
+  //TODO: Get description from individual modules
   return array_merge($default_perms, $module_perms);
 }
 
@@ -184,9 +185,22 @@ function activitystream_form_alter(&$form, &$form_state, $form_id) {
         }          
       }
     }
+    $form['#submit'] = array_merge($form['#submit'], array('activitystream_user_submit'));
   }
 }
-
+function activitystream_user_submit($form, $form_state) {
+    foreach (module_implements('activitystream_settings') as $name) {
+      if (user_access('use '. $name)) {
+        $edit = $form[$name];
+        $account = $form['#user'];
+        $arrdetails = array();
+        $arrdetails['userid'] = (array_key_exists($name .'_userid', $edit)) ? $edit[$name .'_userid']['#value'] : NULL;
+        $arrdetails['password'] = (array_key_exists($name .'_password', $edit)) ? ($edit[$name .'_password']['#value']) : NULL;
+        $arrdetails['feed'] = (array_key_exists($name .'_feed', $edit)) ? $edit[$name .'_feed']['#value'] : NULL;
+        activitystream_save_account($name, $account, $arrdetails);
+      }
+    }
+}
 function activitystream_user_categories() {
     return array(
       array(
@@ -508,9 +522,9 @@ function activitystream_cron() {
   module_load_include('inc', 'node', 'node.pages');
   $number_of_hours = variable_get('activitystream_cron_hours', 1);
   $active_days = variable_get('activitystream_active_days', 30);
-  $result = db_query('SELECT a.uid, a.userid, a.password, a.feed, a.module FROM {activitystream_accounts} a LEFT JOIN {users} u on a.uid = u.uid  WHERE a.lastfetch < date_sub(now( ) , INTERVAL %d HOUR) AND u.access > unix_timestamp(date_sub(now( ) , INTERVAL %d day)) ORDER BY a.lastfetch DESC, u.access DESC', $number_of_hours, $active_days);
+  $result = db_query('SELECT a.uid, a.userid, a.password, a.feed, a.module FROM {activitystream_accounts} a LEFT JOIN {users} u on a.uid = u.uid  WHERE a.lastfetch < date_sub(now( ) , INTERVAL :hour HOUR) AND u.access > unix_timestamp(date_sub(now( ) , INTERVAL :days day)) ORDER BY a.lastfetch DESC, u.access DESC', array(':hour' => $number_of_hours, ':days' => $active_days));
   $users = array();
-  while ($user = db_fetch_object($result)) {
+  while ($user = $result->fetchObject()) {
     $users[] = $user;
   }
   $num_users = activitystream_update_streams($users);
