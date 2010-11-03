@@ -144,7 +144,7 @@ function activitystream_access($op, $node, $account) {
 function activitystream_nodeapi(&$node, $op, $arg = 0) {
   switch ($op) {
     case 'delete':
-      $result = db_query('DELETE FROM {activitystream} WHERE nid = %d', $node->nid);
+      $result = db_query('DELETE FROM {activitystream} WHERE nid = :nid', array(':nid' => $node->nid));
   }
 }
 
@@ -179,6 +179,7 @@ function activitystream_form_alter(&$form, &$form_state, $form_id) {
     foreach (module_implements('activitystream_settings') as $name) {
       if (user_access('use '. $name)) {
         $function = $name .'_activitystream_settings';
+        $edit = activity_stream_settings_default_values($form['#user']->uid, $name);
         $elements = $function($edit);
         foreach ($elements as $key => $value) {
           $form[$key] = $value;
@@ -187,6 +188,13 @@ function activitystream_form_alter(&$form, &$form_state, $form_id) {
     }
     $form['#submit'] = array_merge($form['#submit'], array('activitystream_user_submit'));
   }
+}
+
+function activity_stream_settings_default_values($uid, $module) {
+  $query = db_query("SELECT userid, password, feed FROM {activitystream_accounts} WHERE uid = :uid AND module = :module", array(':uid' => $uid, ':module' => $module));
+  $as = $query->fetchObject();
+  if($as)
+  return array($module .'_userid' => $as->userid, $module .'_feed' => $as->feed, $module .'_password' => $as->password);
 }
 function activitystream_user_submit($form, $form_state) {
     foreach (module_implements('activitystream_settings') as $name) {
@@ -557,7 +565,7 @@ function activitystream_update_streams(&$users, $use_queue =  TRUE) {
       activitystream_invoke_streamapi($user);
     }
     // Update the last fetch time for this user and module.
-    db_query('UPDATE {activitystream_accounts} set lastfetch = now() where uid = %d AND module = \'%s\'', $user->uid, $user->module);
+    db_query('UPDATE {activitystream_accounts} set lastfetch = now() where uid = :uid AND module = :module', array(':uid' => $user->uid, ':module' =>$user->module));
     $processed_users[$user->uid] = $user->userid;    
   }
   return count($processed_users);
@@ -720,8 +728,8 @@ function activitystream_save_node($activity, $user, $name) {
   if (empty($activity['data'])) {
     $activity['data'] = '';
   }
-  $node = db_fetch_object(db_query("SELECT nid, changed FROM {activitystream} WHERE guid = '%s'",$activity['guid']));
-  if ($node->nid) {
+  $node = db_query("SELECT nid, changed FROM {activitystream} WHERE guid = ':guid'", array(':guid' => $activity['guid']));
+  if (isset($node->nid)) {
     $changed = $node->changed;
     $node = node_load($node->nid);
     if ($changed != $node->changed) {
@@ -744,7 +752,10 @@ function activitystream_save_node($activity, $user, $name) {
     }
   }
   // Has the source changed? If not, we don't want to update the node
-  $source_changed = ((strpos($activity['title'], $node->title) !== FALSE) && $node->body == $activity['body']) ? false : true;
+  $source_changed = false;
+  if(isset($node->title)) {
+      $source_changed = ((strpos($activity['title'], $node->title) !== FALSE) && $node->body == $activity['body']) ? false : true;
+  }
   
   if ($source_changed || $new) {
     // Only save if if the source has changed or this is a new item
@@ -753,6 +764,10 @@ function activitystream_save_node($activity, $user, $name) {
     $node->created = $activity['timestamp'];
     $node->uid = $user->uid;
     $node->type = 'activitystream';
+    if (empty($node->language)) {
+      // 'und' is the language-neutral code in Drupal 7.
+      $node->language = 'und';
+    }
     if (module_exists('taxonomy')) {
       $vid = variable_get('activitystream_vocabulary', -1);
       if ($vid > 0 && $activity['categories']) {
@@ -762,7 +777,7 @@ function activitystream_save_node($activity, $user, $name) {
     
     if ($new) {
       node_invoke($node, 'prepare');
-      node_invoke_nodeapi($node, 'prepare');
+      module_invoke_all('node_prepare', $node);
     }
     node_save($node);
     $nid = activitystream_save_stream($node, $activity, $name);
@@ -776,10 +791,11 @@ function activitystream_save_node($activity, $user, $name) {
 }
 
 function activitystream_save_stream(&$node, &$activity, $name) {
-  $n = db_fetch_object(db_query("SELECT nid, changed FROM {activitystream} WHERE guid = '%s'",$activity['guid']));
-  if ($n->nid) {
+  $query = db_query("SELECT nid, changed FROM {activitystream} WHERE guid = :guid", array(':guid' => $activity['guid']));
+  $n = $query->fetchObject();
+   if (isset($n->nid)) {
     // This is an existing item. Update.
-    $actions = db_query('UPDATE {activitystream} SET changed = %d', $node->changed);    
+    $actions = db_query('UPDATE {activitystream} SET changed = :changed', array(':changed' => $node->changed));    
     if (!$actions) {
       watchdog('activitystream', 'Cannot update stream item. Check the Drupal log for database errors.');
       return NULL;            
@@ -787,7 +803,7 @@ function activitystream_save_stream(&$node, &$activity, $name) {
     watchdog('activitystream', 'Updated %title from %name', array('%title' => $node->title, '%name' => $name));    
     return $node->nid;    
   } else {
-    $actions = db_query('INSERT into {activitystream} (nid, module, guid, link, data, changed) VALUES (%d,\'%s\', \'%s\',\'%s\',\'%s\', %d)', $node->nid, $name, $activity['guid'], $activity['link'], $activity['data'], $node->changed);
+    $actions = db_query('INSERT into {activitystream} (nid, module, guid, link, data, changed) VALUES (:nid, :module, :guid, :link, :data, :changed)', array(':nid' => $node->nid, ':module' => $name, ':guid' => $activity['guid'], ':link' => $activity['link'], ':data' => $activity['data'], ':changed' => $node->changed));
     if (!$actions) {
       watchdog('activitystream', 'Cannot save stream item. Check the Drupal log for database errors.');
       return NULL;            

@@ -107,6 +107,7 @@ function theme_activitystream_twitter_item($activity) {
 
 function activitystream_twitter_makelinks($text) {
   // twitpic images
+  $pics = '';
   preg_match_all("/http:\/\/twitpic\.com\/(.*)/i", $text, $matches, PREG_PATTERN_ORDER);
   foreach ($matches[1] as $match) {
     if (!empty($match[1])) {
