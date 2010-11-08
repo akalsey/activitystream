@@ -110,7 +110,6 @@ function activitystream_node_info() {
       'base'      => 'activitystream',
       'description' => t('A node type to contain items from your activity stream. You shouldn\'t create these nodes directly.'),
       'help'        => t('A node type to contain items from your activity stream. You shouldn\'t create these nodes directly.'),
-      'body_label'  => t('Body'),
     ),
   );
 }
@@ -160,14 +159,6 @@ function activitystream_form(&$node) {
     '#weight' => -5,
   );    
 
-  $form['body'] = array(
-    '#type' => 'textarea', 
-    '#title' => check_plain($type->body_label), 
-    '#default_value' => isset($node->body) ? $node->body : '', 
-    '#rows' => 20, 
-    '#required' => FALSE,
-  );
-  
   return $form;
 }
 
@@ -400,8 +391,6 @@ function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
   $title = variable_get('activitystream_title', 'Activity Stream');
   $result = db_query('SELECT s.module, s.link, s.data, s.nid FROM {activitystream} s WHERE s.nid=:nid', array(':nid' => $node->nid));      
   $action = $result->fetchObject();
-  $node->content[] = theme('activitystream_view', array('activity' =>$action));
-
 
   if ($page) {
     // Breadcrumb navigation
@@ -518,6 +507,7 @@ function theme_activitystream_username($user) {
 
 function theme_activitystream_view($activity) {
   $activity = $activity['activity'];
+
   $node = node_load($activity->nid);
   $icon_theme = $activity->module .'_icon';
   $return = '<p class="activitystream-original">See original: ';
@@ -760,7 +750,15 @@ function activitystream_save_node($activity, $user, $name) {
   if ($source_changed || $new) {
     // Only save if if the source has changed or this is a new item
     $node->title = $activity['title'];
-    $node->body = $activity['body'];
+    if(is_array($activity['body'])) {
+      foreach ($activity['body'] as $body) {
+        if(!empty($body))
+        $bodies[] = array('value'=>$body, 'format' =>'full_html');
+      }
+      $node->body = array(LANGUAGE_NONE => $bodies);
+    } else {
+      $node->body = array(LANGUAGE_NONE => array(array('value'=>$activity['body'], 'format' =>'full_html')));
+    } 
     $node->created = $activity['timestamp'];
     $node->uid = $user->uid;
     $node->type = 'activitystream';

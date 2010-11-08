@@ -22,6 +22,9 @@
 
 function activitystream_install() {
   db_query("UPDATE {system} SET weight = 100 WHERE name  = 'activitystream'");
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types['activitystream']);
 }
 
 /**
