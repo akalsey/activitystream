@@ -88,7 +88,7 @@ function activitystream_flickr_activitystream_admin() {
   $form['activitystream_flickr']['activitystream_flickr_key'] = array(
     '#type' => 'textfield',
     '#title' => t("API Key"),
-    '#description' => t('Your Flickr API Key (<a href="http://www.flickr.com/services/api/keys/apply/">Get a key</a>)'),
+    '#description' => t('Your Flickr API Key (<a href="@link">Get a key</a>)', array('@link' => "http://www.flickr.com/services/api/keys/apply/")),
     '#default_value' => variable_get('activitystream_flickr_key', ''),
     '#required' => FALSE
   );
@@ -109,12 +109,17 @@ function activitystream_flickr_activitystream_admin() {
 function activitystream_flickr_activitystream_settings(&$edit) {
   $form['activitystream_flickr'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Flickr settings'));
+      '#title' => t('Flickr settings'),
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE, 
+      '#tree' => TRUE,
+  );
   $form['activitystream_flickr']['activitystream_flickr_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
     '#default_value' => empty($edit['activitystream_flickr_userid']) ? '' : $edit['activitystream_flickr_userid'],
-    '#description' => t('The username for your Flickr account'));
+    '#description' => t('The username for your Flickr account'),
+  );
   return $form;  
 }
 
@@ -138,10 +143,10 @@ function theme_activitystream_flickr_item($action) {
 function activitystream_flickr_theme() {
   return array(
     'activitystream_flickr_icon' => array(
-      'arguments' => array(),
+      'variables' => array(),
     ),
     'activitystream_flickr_item' => array(
-      'arguments' => array('activity' => NULL),
+      'variables' => array('activity' => NULL),
     ),
   );
 }

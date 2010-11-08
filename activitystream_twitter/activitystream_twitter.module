@@ -129,10 +129,10 @@ function activitystream_twitter_makelinks($text) {
 function activitystream_twitter_theme() {
   return array(
     'activitystream_twitter_icon' => array(
-      'arguments' => array(),
+      'variables' => array(),
     ),
     'activitystream_twitter_item' => array(
-      'arguments' => array('activity' => NULL),
+      'variables' => array('activity' => NULL),
     ),
   );
 }

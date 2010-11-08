@@ -6,7 +6,7 @@
  */
 
 function activitystream_flickr_install() {
-  drupal_set_message(t('The Flickr plugin for Activity Stream has been installed. To use it, you need an API key from Flickr. <a href="http://www.flickr.com/services/api/keys/apply/">Get an API key from Flickr here.</a>'));
+  drupal_set_message(t('The Flickr plugin for Activity Stream has been installed. To use it, you need an API key from Flickr. <a href="@link">Get an API key from Flickr here.</a>', array('@link'=>"http://www.flickr.com/services/api/keys/apply/")));
 }
 
 ?>
