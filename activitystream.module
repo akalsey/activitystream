@@ -392,6 +392,9 @@ function activitystream_view($node, $teaser = FALSE, $page = FALSE) {
   $result = db_query('SELECT s.module, s.link, s.data, s.nid FROM {activitystream} s WHERE s.nid=:nid', array(':nid' => $node->nid));      
   $action = $result->fetchObject();
 
+  $body_append = theme('activitystream_view', array('activity' => (array)$action));
+  $node->body[LANGUAGE_NONE][] = array('value'=> $body_append, 'format' =>'full_html');
+
   if ($page) {
     // Breadcrumb navigation
     $breadcrumb[] = l($title, 'stream');
@@ -507,11 +510,10 @@ function theme_activitystream_username($user) {
 
 function theme_activitystream_view($activity) {
   $activity = $activity['activity'];
-
-  $node = node_load($activity->nid);
-  $icon_theme = $activity->module .'_icon';
+  $node = node_load($activity['nid']);
+  $icon_theme = $activity['module'] .'_icon';
   $return = '<p class="activitystream-original">See original: ';
-  $return .= ' '. l($node->title, $activity->link);
+  $return .= theme($icon_theme, $activity['data']) .'  '. l($node->title, $activity['link']);
   $return .= '</p>';
   return $return;
 }
@@ -752,8 +754,9 @@ function activitystream_save_node($activity, $user, $name) {
     $node->title = $activity['title'];
     if(is_array($activity['body'])) {
       foreach ($activity['body'] as $body) {
-        if(!empty($body))
-        $bodies[] = array('value'=>$body, 'format' =>'full_html');
+        if(!empty($body)) {
+          $bodies[] = array('value'=>$body, 'format' =>'full_html');
+        }
       }
       $node->body = array(LANGUAGE_NONE => $bodies);
     } else {

@@ -44,7 +44,11 @@ function activitystream_digg_streamapi($user) {
 function activitystream_digg_activitystream_settings(&$edit) {
   $form['activitystream_digg'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Digg settings'));
+    '#title' => t('Digg settings'),
+    '#collapsible' => TRUE, 
+    '#collapsed' => TRUE, 
+    '#tree' => TRUE,
+  );
   $form['activitystream_digg']['activitystream_digg_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
@@ -54,7 +58,7 @@ function activitystream_digg_activitystream_settings(&$edit) {
 }
 
 function theme_activitystream_digg_icon() {
-  return theme_image(drupal_get_path('module', 'activitystream_digg') .'/digg.png', 'Digg');
+  return theme('image', array('path' => drupal_get_path('module', 'activitystream_digg') .'/digg.png', 'alt' => 'Digg'));
 }
 
 function theme_activitystream_digg_item($activity) {

@@ -88,7 +88,7 @@ function activitystream_twitter_activitystream_admin() {
 
 
 function theme_activitystream_twitter_icon() {
-  return theme_image(drupal_get_path('module', 'activitystream_twitter') .'/twitter.png', 'Twitter');
+  return theme('image', array('path' => drupal_get_path('module', 'activitystream_twitter') .'/twitter.png', 'alt' => 'Twitter'));
 }
 
 function theme_activitystream_twitter_item($activity) {

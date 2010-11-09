@@ -128,7 +128,7 @@ function activitystream_flickr_activitystream_settings(&$edit) {
  * so you should stick with that. Return the full <img> tag for the image.
  */
 function theme_activitystream_flickr_icon() {
-  return theme_image(drupal_get_path('module', 'activitystream_flickr') .'/flickr.png', 'Flickr');
+  return theme('image', array('path' => drupal_get_path('module', 'activitystream_flickr') .'/flickr.png', 'alt' => 'Flickr'));
 }
 
 function theme_activitystream_flickr_item($action) {
