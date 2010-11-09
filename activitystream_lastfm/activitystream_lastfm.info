@@ -5,4 +5,4 @@ description = What you're listening to
 dependencies[] = activitystream 
 dependencies[] = activitystream_feed
 package = Activity Stream
-core = 6.x
+core = 7.x

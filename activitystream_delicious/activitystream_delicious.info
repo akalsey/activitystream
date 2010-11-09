@@ -5,4 +5,4 @@ description = Your links on Delicious
 dependencies[] = activitystream 
 dependencies[] = activitystream_feed
 package = Activity Stream
-core = 6.x
+core = 7.x

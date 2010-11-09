@@ -45,7 +45,11 @@ function activitystream_delicious_streamapi($user) {
 function activitystream_delicious_activitystream_settings(&$edit) {
   $form['activitystream_delicious'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Del.icio.us settings'));
+      '#title' => t('Del.icio.us settings'),
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE, 
+      '#tree' => TRUE,
+  );
   $form['activitystream_delicious']['activitystream_delicious_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
@@ -55,7 +59,7 @@ function activitystream_delicious_activitystream_settings(&$edit) {
 }
 
 function theme_activitystream_delicious_icon() {
-  return theme_image(drupal_get_path('module', 'activitystream_delicious') .'/delicious.png', 'Del.icio.us');
+  return theme('image', array('path' => drupal_get_path('module', 'activitystream_delicious') .'/delicious.png', 'alt' => 'Del.icio.us'));
 }
 
 function theme_activitystream_delicious_item($action) {

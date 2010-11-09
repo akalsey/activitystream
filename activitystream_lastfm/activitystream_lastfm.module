@@ -44,7 +44,11 @@ function activitystream_lastfm_streamapi($user) {
 function activitystream_lastfm_activitystream_settings(&$edit) {
   $form['activitystream_lastfm'] = array(
       '#type' => 'fieldset',
-      '#title' => t('lastfm settings'));
+      '#title' => t('lastfm settings'),
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE, 
+      '#tree' => TRUE,
+  );
   $form['activitystream_lastfm']['activitystream_lastfm_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Username'),
@@ -54,7 +58,7 @@ function activitystream_lastfm_activitystream_settings(&$edit) {
 }
 
 function theme_activitystream_lastfm_icon() {
-  return theme_image(drupal_get_path('module', 'activitystream_lastfm') .'/lastfm.png', 'Last.fm');
+  return theme('image', array('path' => drupal_get_path('module', 'activitystream_lastfm') .'/lastfm.png', 'alt' => 'Last.fm'));
 }
 
 function theme_activitystream_lastfm_item($activity) {
