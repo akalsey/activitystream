@@ -317,16 +317,7 @@ function activitystream_page($uid = 0) {
     drupal_set_title(check_plain('All user\'s '. $title .'s'));
     $items = activitystream_get_activity();    
   }
-  $output = theme('activitystream', $items);
-
-  // Breadcrumb navigation
-  $breadcrumb[] = l(t('Home'), NULL);
-  $breadcrumb[] = l(t($title), 'stream');
-  drupal_set_breadcrumb($breadcrumb);
-  $pager = theme('pager', NULL, 15, 0);
-  if (!empty($pager)) {
-    $output .= $pager;
-  }
+  $output = theme('activitystream', array('items' => $items));
   
   return $output;
 }
@@ -840,7 +831,7 @@ function activitystream_theme() {
 function activitystream_views_api() {
   return array(
     'api' => 2,
-    'path' => drupal_get_path('module', 'activitystream'),
+    'path' => drupal_get_path('module', 'activitystream').'/views',
   );
 }
 
