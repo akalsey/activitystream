@@ -140,8 +140,10 @@ function activitystream_access($op, $node, $account) {
  * Implementation of hook_nodeapi(). 
  * When a node is deleted, also delete the associated record in the stream table.
  */
-function activitystream_node_type_delete($info) {
-      $result = db_query('DELETE FROM {activitystream} WHERE nid = :nid', array(':nid' => $info->nid));
+function activitystream_node_delete($node) {
+ db_delete('activitystream')
+    ->condition('nid', $node->nid)
+    ->execute();
 }
 
 /**
@@ -711,7 +713,8 @@ function activitystream_save_node($activity, $user, $name) {
   if (empty($activity['data'])) {
     $activity['data'] = '';
   }
-  $node = db_query("SELECT nid, changed FROM {activitystream} WHERE guid = ':guid'", array(':guid' => $activity['guid']));
+  $query = db_query("SELECT nid, changed FROM {activitystream} WHERE guid = :guid", array(':guid' => $activity['guid']));
+  $node = $query->fetchObject();
   if (isset($node->nid)) {
     $changed = $node->changed;
     $node = node_load($node->nid);
@@ -766,10 +769,9 @@ function activitystream_save_node($activity, $user, $name) {
         $node->taxonomy['tags'] = array($vid => implode(',', $activity['categories']));  
       }
     }
-    
     if ($new) {
       node_invoke($node, 'prepare');
-      module_invoke_all('node_prepare', $node);
+      module_invoke_all('node_prepare', $node, $activity);
     }
     node_save($node);
     $nid = activitystream_save_stream($node, $activity, $name);
