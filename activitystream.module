@@ -506,7 +506,7 @@ function theme_activitystream_view($activity) {
   $node = node_load($activity['nid']);
   $icon_theme = $activity['module'] .'_icon';
   $return = '<p class="activitystream-original">See original: ';
-  $return .= theme($icon_theme, $activity['data']) .'  '. l($node->title, $activity['link']);
+  $return .= theme($icon_theme) .'  '. l($node->title, $activity['link']);
   $return .= '</p>';
   return $return;
 }
