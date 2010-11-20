@@ -470,7 +470,7 @@ function theme_activitystream_item($action) {
   else {
     $theme_function = 'activitystream_icon';
   }
-  return '<span class="activitystream-item">'. theme($theme_function) ." <span>$name ". l($node->title, 'node/'. $node->nid) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) ."</span>\n";
+  return '<span class="activitystream-item">'. theme($theme_function, $activity) ." <span>$name ". l($node->title, 'node/'. $node->nid) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) ."</span>\n";
 }
 
 
@@ -506,7 +506,7 @@ function theme_activitystream_view($activity) {
   $node = node_load($activity['nid']);
   $icon_theme = $activity['module'] .'_icon';
   $return = '<p class="activitystream-original">See original: ';
-  $return .= theme($icon_theme, $activity['data']) .'  '. l($node->title, $activity['link']);
+  $return .= theme($icon_theme, $activity) .'  '. l($node->title, $activity['link']);
   $return .= '</p>';
   return $return;
 }
