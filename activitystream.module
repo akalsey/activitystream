@@ -504,9 +504,14 @@ function theme_activitystream_username($user) {
 function theme_activitystream_view($activity) {
   $activity = $activity['activity'];
   $node = node_load($activity['nid']);
-  $icon_theme = $activity['module'] .'_icon';
+  if (function_exists('theme_'.$action->module .'_icon')) {
+    $theme_function = $action->module .'_icon';
+  } 
+  else {
+    $theme_function = 'activitystream_icon';
+  }
   $return = '<p class="activitystream-original">See original: ';
-  $return .= theme($icon_theme, $activity) .'  '. l($node->title, $activity['link']);
+  $return .= theme($$theme_function, $activity) .'  '. l($node->title, $activity['link']);
   $return .= '</p>';
   return $return;
 }
