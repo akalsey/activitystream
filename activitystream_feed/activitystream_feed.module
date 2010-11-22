@@ -138,12 +138,15 @@ function activitystream_feed_activitystream_settings(&$edit) {
 
 function theme_activitystream_feed_icon($params) {
   $params = unserialize($params['data']);
+  if(!empty($params)) {
+    //return theme('image', drupal_get_path('module', 'activitystream_feed') .'/feed-icon-16x16.png', $params['feedtitle'], $params['feedtitle']);
+  }
   // Return the favicon if we have it. Otherwise return a default feed icon.
   if ($params['favicon']) {
     return '<img src="'. $params['favicon'] .'" alt="'. $params['feedtitle'] .'" height="16" width="16"/>';    
   } 
   else {
-    return theme('image', drupal_get_path('module', 'activitystream_feed') .'/feed-icon-16x16.png', $params['feedtitle'], $params['feedtitle']);
+    //return theme('image', drupal_get_path('module', 'activitystream_feed') .'/feed-icon-16x16.png', $params['feedtitle'], $params['feedtitle']);
   }
 }
 
@@ -152,7 +155,7 @@ function theme_activitystream_feed_item($activity) {
   $date = theme('activitystream_date', $node->created);
   $user = user_load(array('uid' => $node->uid));
   $name = theme('activitystream_username', $user);
-  return '<span class="activitystream-item">'. theme('activitystream_feed_icon', $activity->data) ." <span>$name " . t('posted') . " ". l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>'."\n";
+  return '<span class="activitystream-item">'. theme('activitystream_feed_icon', $activity) ." <span>$name " . t('posted') . " ". l($node->title, $activity->link) ." <span class=\"activitystream-created\">$date</span></span>". l('#', 'node/'. $node->nid, array('class' => 'permalink')) .'</span>'."\n";
 }
 
 function activitystream_feed_theme() {

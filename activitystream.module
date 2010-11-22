@@ -504,8 +504,8 @@ function theme_activitystream_username($user) {
 function theme_activitystream_view($activity) {
   $activity = $activity['activity'];
   $node = node_load($activity['nid']);
-  if (function_exists('theme_'.$activity->module .'_icon')) {
-    $theme_function = $activity->module .'_icon';
+  if (function_exists('theme_'.$activity['module'] .'_icon')) {
+    $theme_function = $activity['module'] .'_icon';
   } 
   else {
     $theme_function = 'activitystream_icon';
