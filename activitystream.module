@@ -576,6 +576,7 @@ function activitystream_user_load($users) {
     if(!isset($users[$key]->activity_accounts))
     $users[$key]->activity_accounts = _activitystream_load_account_info($key);
   }
+debug($users);
 }
 
 function _activitystream_load_account_info($uid) {
@@ -583,14 +584,16 @@ function _activitystream_load_account_info($uid) {
   //loop through all existing activitystream modules and grab the profileUrl if it exists
   foreach(module_implements('streamapi') as $name) {
     $account = _activitystream_load_accounts_with_module($uid, $name);
-    $module = $account->module;
-    $function = $module .'_activitystream_info';
-    if(function_exists($function)) {
-      $account->info = $function($account);
+    if($account)  {
+      $module = $account->module;
+      $function = $module .'_activitystream_info';
+      if(function_exists($function)) {
+        $account->info = $function($account);
+      }
+      if($module) { 
+        array_push($accounts, $account);
+      }    
     }
-    if($module) { 
-      array_push($accounts, $account);
-    }    
   }
   return $accounts;
 }
