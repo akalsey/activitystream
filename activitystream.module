@@ -576,7 +576,6 @@ function activitystream_user_load($users) {
     if(!isset($users[$key]->activity_accounts))
     $users[$key]->activity_accounts = _activitystream_load_account_info($key);
   }
-debug($users);
 }
 
 function _activitystream_load_account_info($uid) {
