@@ -49,7 +49,30 @@ function activitystream_flickr_streamapi($user) {
 
   return $items;
 }
-
+function activitystream_flickr_wh_activitystream_info($user) {
+  //TODO: CACHE THIS
+  $apikey = variable_get('activitystream_flickr_key', '');
+  if ($apikey == '') {
+    watchdog('activitystream', 'Flickr API Key is missing.', WATCHDOG_ERROR);
+    return;
+  }
+  $f = new phpFlickr($apikey, '');
+  // Cache to the filesystem in the temp directory set by Drupal
+  $f->enableCache ('fs', file_directory_temp());
+  if (!$person = $f->people_findByUsername($user->userid)) {
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    return;
+  }
+  if (!$profileurl = $f->urls_getUserProfile($person['id'])) {
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    return;
+  }
+  $info = array(
+    'title' => 'Flickr',
+    'profile_url' => $profileurl,
+  );
+  return $info;
+}
 function activitystream_flickr_build_items($photos, $baseurl, $type = 'photo', &$f) {
   $items = array();
   if (!is_array($photos['photos']['photo'])) {

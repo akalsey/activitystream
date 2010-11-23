@@ -34,7 +34,13 @@ function activitystream_twitter_streamapi($user) {
   }
   return $newitems;
 }
-
+function activitystream_twitter_activitystream_info($user) {
+  $info = array(
+    'title' => 'Twitter',
+    'profile_url' => 'http://twitter.com/'. $user->userid,
+  );
+  return $info;
+}
 /*
  * Implement a user settings form hook. Modules should build a form
  * using an array that mirrors the Drupal form API. activitystream.module

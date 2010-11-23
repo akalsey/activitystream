@@ -135,7 +135,13 @@ function activitystream_feed_activitystream_settings(&$edit) {
     '#description' => t('URL of the feeds to import as an activity stream. Multiple feeds are allowed; place each on a seperate line.'));
   return $form;  
 }
-
+function activitystream_feed_activitystream_info($user) {
+  $info = array(
+    'title' => 'Feed',
+    'profile_url' => '',
+  );
+  return $info;
+}
 function theme_activitystream_feed_icon($params) {
   $params = unserialize($params['data']);
   if(!empty($params)) {

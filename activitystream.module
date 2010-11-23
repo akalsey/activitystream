@@ -571,7 +571,40 @@ function activitystream_job_queue_functions() {
   );
   return $functions;
 }
+function activitystream_user_load($users) {
+  foreach($users as $key=>$user) {
+    if(!isset($users[$key]->activity_accounts))
+    $users[$key]->activity_accounts = _activitystream_load_account_info($key);
+  }
+debug($users);
+}
 
+function _activitystream_load_account_info($uid) {
+  $accounts = array();
+  //loop through all existing activitystream modules and grab the profileUrl if it exists
+  foreach(module_implements('streamapi') as $name) {
+    $account = _activitystream_load_accounts_with_module($uid, $name);
+    $module = $account->module;
+    $function = $module .'_activitystream_info';
+    if(function_exists($function)) {
+      $account->info = $function($account);
+    }
+    if($module) { 
+      array_push($accounts, $account);
+    }    
+  }
+  return $accounts;
+}
+function _activitystream_load_accounts($uid) {
+  $query = db_query("SELECT userid, password, feed, module FROM {activitystream_accounts} WHERE uid = :uid", array(':uid' => $uid));
+  $activity = $query->fetchAll();
+  return $activity;
+}
+function _activitystream_load_accounts_with_module($uid, $module) {
+  $query = db_query('SELECT userid, password, feed, module FROM {activitystream_accounts} WHERE module = :module and uid = :uid', array(':module' => $module, ':uid'  => $uid));
+  $activity = $query->fetchObject();
+  return $activity;
+}
 /**
  * Implementation of hook_settings()
  */

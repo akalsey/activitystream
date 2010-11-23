@@ -24,7 +24,13 @@ function activitystream_digg_streamapi($user) {
   $items = activitystream_feed_streamapi($user);
   return $items;
 }
-
+function activitystream_digg_activitystream_info($user) {
+  $info = array(
+    'title' => 'Digg',
+    'profile_url' => 'http://digg.com/users/'. $user->userid,
+  );
+  return $info;
+}
 
 /*
  * Implement a user settings form hook. Modules should build a form

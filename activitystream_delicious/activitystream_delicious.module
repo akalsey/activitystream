@@ -26,6 +26,13 @@ function activitystream_delicious_streamapi($user) {
   return $items;
 }
 
+function activitystream_delicious_activitystream_info($user) {
+  $info = array(
+    'title' => 'Delicious',
+    'profile_url' => 'http://del.icio.us/'. $user->userid,
+  );
+  return $info;
+}
 
 /*
  * Implement a user settings form hook. Modules should build a form
