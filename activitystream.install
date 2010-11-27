@@ -87,3 +87,9 @@ function activitystream_update_1() {
 function activitystream_update_2() {
   db_query("UPDATE {system} SET weight = 100 WHERE name  = 'activitystream'");
 }
+
+function activitystream_update_6201() {
+  $ret = array();
+  db_add_index(&$ret, 'activitystream', 'nid', array('nid'));
+  return $ret;
+}
