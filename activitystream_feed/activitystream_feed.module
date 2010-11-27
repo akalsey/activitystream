@@ -133,7 +133,7 @@ function activitystream_feed_activitystream_settings(&$edit) {
   return $form;  
 }
 
-function theme_activitystream_feed_icon($params) {
+function theme_activitystream_feed_icon($params = array()) {
   $params = unserialize($params);
   // Return the favicon if we have it. Otherwise return a default feed icon.
   if ($params['favicon']) {
