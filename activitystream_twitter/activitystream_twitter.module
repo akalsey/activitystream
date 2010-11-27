@@ -23,7 +23,8 @@ function activitystream_twitter_streamapi($user) {
   $items = activitystream_feed_streamapi($user);
   foreach ($items as $tweet) {
     $userid = $user->userid .':';
-    $tweet['title'] = preg_replace('/^'. $userid .' /', '', $tweet['title']);
+    $tweet['title'] = preg_replace('/^'. $userid .' /i', '', $tweet['title']);
+    $tweet['body'] = preg_replace('/^'. $userid .' /i', '', $tweet['body']);
     // If the admin has asked not to show replies, 
     // skip any tweet that starts with @
     if (variable_get('activitystream_twitter_mentions', '1') == 0 && substr($tweet['title'], 0, 1) == '@') {
