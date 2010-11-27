@@ -136,7 +136,27 @@ It is recommended that your item theme follow the HTML conventions shown in the 
 function theme_activitystream_flickr_item($action) {
   $node = node_load($action->nid);
   $date = theme('activitystream_date',$node->created);
-  $user = user_load(array('uid' => $node->uid));
+  $user = activitystream_user_load(array('uid' => $node->uid));
   $name = theme('activitystream_username',$user);
   return '<span class="activitystream-item">' . theme('activitystream_flickr_icon') . " <span>$name posted " . l($node->title, $action->link) . " <span class=\"activitystream-created\">$date</span></span> " . l('#', 'node/' . $node->nid, array('class' => 'permalink')) . '</span>';
 }
+
+Helper Functions
+================
+
+activitystream_user_load
+------------------------
+
+Because user_load is called often, this provides a cache, ensuring that a given uid will only be loaded once. Call it instead of user_load.
+
+@param
+  $uid
+    The Drupal UID for the user.
+
+@returns
+  $user
+    A Drupal user object
+
+Example:
+
+$user = activitystream_user_load($node->uid);
