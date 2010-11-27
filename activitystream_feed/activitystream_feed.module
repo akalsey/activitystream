@@ -7,7 +7,7 @@
  * This is required by lastfm, twitter, digg and delicious.
  */
 
-$path = drupal_get_path('module', 'activitystream_feed') .'/simplepie.inc';
+$path = drupal_get_path('module', 'activitystream_feed') .'/simplepie/simplepie.class.php';
 
 if (module_exists('simplepie')) {
   simplepie_require();
