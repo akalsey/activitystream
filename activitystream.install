@@ -41,6 +41,7 @@ function activitystream_schema() {
        'data' => array('type' => 'text'),
        'changed' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'disp-width' => '10')
        ),
+   'indexes' => array('nid' => array('nid')),
     'primary key' => array('guid'),
   );
 
