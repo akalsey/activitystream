@@ -202,8 +202,8 @@ function activitystream_user($op, &$edit, &$account, $category = NULL) {
             }          
           }
         }
+        return $form;
       }
-      return $form;
       break;
     case 'update':
       if ($category != 'activitystream') {
@@ -395,6 +395,7 @@ function _activitystream_get_activity($user = NULL, $show_buddies = FALSE, $coun
 function activitystream_get_activity($user = NULL, $show_buddies = FALSE, $count = NULL) {
   $items = _activitystream_get_activity($user, $show_buddies, $count);
   $return = array();
+  $datehead = ''; // initialize to blank so date header will appear on first item
   foreach ($items as $action) {
     if (date('Ymd', $action->created) != $datehead) {
       $datehead = date('Ymd', $action->created);
@@ -434,6 +435,7 @@ function theme_activitystream_item($action) {
 
 function theme_activitystream($items) {
   drupal_add_css(drupal_get_path('module', 'activitystream') .'/activitystream.css');
+  $ret = '';
   if (!count($items)) {
     $ret = t('There are no activities to show.');
   }
