@@ -696,7 +696,13 @@ function activitystream_save_node($activity, $user, $name) {
     }
   }
   // Has the source changed? If not, we don't want to update the node
-  $source_changed = ((strpos($activity['title'], $node->title) !== FALSE) && $node->body == $activity['body']) ? false : true;
+  // strpos barfs if second param is empty, so check for this in an alternate way
+  // in case the node title is empty 
+  if (empty($node->title)) {
+    $source_changed = ((!empty($activity['title'])) || $node->body != $activity['body']) ? TRUE : FALSE;   
+  } else {
+    $source_changed = ((strpos($activity['title'], $node->title) !== FALSE) && $node->body == $activity['body']) ? FALSE : TRUE;    
+  }
   
   if ($source_changed || $new) {
     // Only save if if the source has changed or this is a new item
