@@ -446,6 +446,22 @@ function theme_activitystream($items) {
   return '<div id="activitystream">'."\n". $ret ."\n</div>";
 }
 
+function theme_activitystream_block($items, $params = NULL) {
+  drupal_add_css(drupal_get_path('module', 'activitystream') .'/activitystream.css');
+  $ret = '';
+  if (!count($items)) {
+    $ret = t('There are no activities to show.');
+  } else {
+    foreach ($items as $day) {
+      $ret .= "\n{$day['title']}\n";
+      $ret .= theme('item_list', $day['items']);
+    }
+    $url = (isset($params['uid'])) ? 'stream/'. $params['uid']->uid : 'stream';
+    $ret .= '<p class="more">' . l('More', $url) . '</p>';    
+  }
+  return '<div id="activitystream-block">'."\n". $ret ."\n</div>";
+}
+
 function theme_activitystream_date($date) {
   $date = format_date($date, 'custom', 'g:ia');
   return $date;
@@ -763,6 +779,9 @@ function activitystream_theme() {
     'activitystream' => array(
       'arguments' => array('items' => NULL),
     ),
+    'activitystream_block' => array(
+      'arguments' => array('items' => NULL, $params = NULL),
+    ),
     'activitystream_header' => array(
       'arguments' => array('action' => NULL),
     ),
@@ -827,10 +846,10 @@ function block_activitystream_content($which_block) {
   switch ($which_block) {
     case 0:
       $items = activitystream_get_activity();
-      return theme('activitystream', $items);
+      return theme('activitystream_block', $items);
     case 1:
       $args = func_get_args();
       $items = activitystream_get_activity($args[1]);
-      return theme('activitystream', $items);
+      return theme('activitystream_block', $items, array('uid' => $args[1]));
   }
 }
