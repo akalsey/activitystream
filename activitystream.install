@@ -52,7 +52,7 @@ function activitystream_schema() {
        'userid' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
        'password' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
        'feed' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
-       'lastfetch' => array('type' => 'datetime', 'not null' => TRUE)),
+       'lastfetch' => array('type' => 'datetime', 'not null' => FALSE)),
        );
 
   return $schema;
