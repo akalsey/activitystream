@@ -550,7 +550,7 @@ function activitystream_settings() {
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#default_value' => variable_get('activitystream_title', 'Activity Stream'),
-    '#description' => t('The title of the Activiy Stream in blocks and User Profiles.'),
+    '#description' => t('The title of the Activity Stream in blocks and User Profiles.'),
   );
   $form['activitystream_user_description'] = array(
     '#type' => 'textarea',
