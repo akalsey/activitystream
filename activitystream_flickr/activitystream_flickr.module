@@ -25,7 +25,7 @@ function activitystream_flickr_streamapi($user) {
     include('phpFlickr.php');
     $apikey = variable_get('activitystream_flickr_key', '');
     if ($apikey == '') {
-      watchdog('activitystream', 'Flickr API Key is missing.', WATCHDOG_ERROR);
+      watchdog('activitystream', 'Flickr API Key is missing.', null, WATCHDOG_ERROR);
       return;
     }
     $f = new phpFlickr($apikey, '');
@@ -33,18 +33,18 @@ function activitystream_flickr_streamapi($user) {
   // Cache to the filesystem in the temp directory set by Drupal
   $f->enableCache ('fs', file_directory_temp());
   if (!$person = $f->people_findByUsername($user->userid)) {
-    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
     return;
   }
   if (!$baseurl = $f->urls_getUserPhotos($person['id'])) {
-    watchdog('activitystream', 'Unable to connect to Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to connect to Flickr: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
     return;
   }
   if (!$photos = $f->people_getPublicPhotos($person['id'], NULL, NULL, 10)) {
-    watchdog('activitystream', 'Unable to get photos from Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to get photos from Flickr: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
   }
   if (!$favorites = $f->favorites_getPublicList($person['id'], NULL, NULL, NULL, 10)) {
-    watchdog('activitystream', 'Unable to get Faorites Flickr: error code: '. $error_code .' '. $error_msg, WATCHDOG_ERROR);
+    watchdog('activitystream', 'Unable to get Flickr favorites: error code: %code %message', array('%code' => $error_code, '%message' => $error_msg), WATCHDOG_ERROR);
   }
   
   $photoitems = activitystream_flickr_build_items($photos, $baseurl, 'photo', $f);

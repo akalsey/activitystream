@@ -118,8 +118,6 @@ function activitystream_twitter_makelinks($text) {
   $text = preg_replace('/\b@(\w*)\b/', '<a href="http://twitter.com/\\1">@\\1</a>', $text);
   // hashtags to search.twitter
   $text = preg_replace('/\b#(\w*)\b/', '<a href="http://search.twitter.com/search?q=%23\\1">#\\1</a>', $text);
-  // $text = preg_replace("/<a href=\"http:\/\/twitpic\.com\/(.*)\">http:\/\/twitpic\.com\/(.*)<\/a>/i", 
-  //                     "<a href=\"http://twitpic.com/$1\"><img src=\"http://twitpic.com/show/mini/$1.jpg\" /></a>", $text);
   return array($text, $pics);
 }
 

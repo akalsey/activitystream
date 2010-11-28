@@ -725,7 +725,7 @@ function activitystream_save_node($activity, $user, $name) {
     node_save($node);
     $nid = activitystream_save_stream($node, $activity, $name);
     if (!$nid) {
-      watchdog('activitystream', 'Could not create stream item '. $node->title, WATCHDOG_ERROR);
+      watchdog('activitystream', 'Could not create stream item %title', array('%title' => $node->title), WATCHDOG_ERROR);
       
       // TODO we should probably delete the node here if the save_stream failed
     }

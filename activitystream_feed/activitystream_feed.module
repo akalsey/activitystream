@@ -78,7 +78,7 @@ function activitystream_feed_streamapi($user) {
   $feed->set_useragent('Drupal Activity Streams');
   $feed->force_feed(TRUE);
   if (!$feed->init()) {
-    watchdog('activitystream', '%message', array('%message' => $feed->error .' - '. $user->feed), WATCHDOG_ERROR);
+    watchdog('activitystream', 'Could not load %feed - %message', array('%feed' => $user->feed, '%message' => $feed->error), WATCHDOG_ERROR);
     return;
   }
 
