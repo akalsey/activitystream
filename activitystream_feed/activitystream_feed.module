@@ -7,7 +7,7 @@
  * This is required by lastfm, twitter, digg and delicious.
  */
 
-$path = drupal_get_path('module', 'activitystream_feed') .'/simplepie/simplepie.class.php';
+$path = drupal_get_path('module', 'activitystream_feed') .'/simplepie.inc';
 
 if (module_exists('simplepie')) {
   simplepie_require();
@@ -86,7 +86,7 @@ function activitystream_feed_streamapi($user) {
   $items = array();
   if (is_array($arrfeed)) {
     foreach ($arrfeed as $item) {
-      $activity['link'] = $item->get_permalink();
+      $activity['link'] = html_entity_decode($item->get_permalink());
       $activity['title'] = html_entity_decode($item->get_title());
       $activity['body'] = $item->get_description();
       $activity['timestamp'] = strtotime(str_replace(',', '', $item->get_date()));
